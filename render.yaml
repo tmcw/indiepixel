@@ -5,7 +5,7 @@ services:
     plan: free
     buildCommand: |
       curl -LsSf https://astral.sh/uv/install.sh | sh
-      export PATH="/root/.cargo/bin:$PATH"
+      export PATH="/root/.cargo/bin:$HOME/.local/bin:$PATH"
       uv venv
       . .venv/bin/activate
       uv sync
