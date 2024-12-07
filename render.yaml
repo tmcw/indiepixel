@@ -2,6 +2,7 @@ services:
   - type: web
     name: tidbyt
     runtime: python
+    plan: free
     buildCommand: |
       curl -LsSf https://astral.sh/uv/install.sh | sh
       export PATH="/root/.cargo/bin:$PATH"
