@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: tidbyt
+    runtime: python
+    buildCommand: |
+      curl -LsSf https://astral.sh/uv/install.sh | sh
+      export PATH="/root/.cargo/bin:$PATH"
+      uv venv
+      . .venv/bin/activate
+      uv sync
+    startCommand: gunicorn app:app
