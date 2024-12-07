@@ -4,9 +4,5 @@ services:
     runtime: python
     plan: free
     buildCommand: |
-      curl -LsSf https://astral.sh/uv/install.sh | sh
-      export PATH="/root/.cargo/bin:$HOME/.local/bin:$PATH"
-      uv venv
-      . .venv/bin/activate
-      uv sync
+      pip install -r requirements.txt
     startCommand: gunicorn app:app
