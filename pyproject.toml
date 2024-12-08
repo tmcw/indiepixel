@@ -10,4 +10,6 @@ dependencies = [
     "pytz>=2024.2",
     "gunicorn>=23.0.0",
     "typing-extensions>=4.12.2",
+    "mypy>=1.13.0",
+    "ruff>=0.8.2",
 ]
