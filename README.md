@@ -39,11 +39,12 @@ After installing dependencies.
   - [x] Text _in progress_
   - [x] Box _in progress_
   - [x] Rect
+  - [x] Column
+  - [x] Row
   - [ ] Animation
-  - [ ] Column
   - [ ] Image
   - [ ] PieChart
   - [ ] Plot
-  - [ ] Row
+  - [ ] 'expand' option
   - [ ] WrappedText
-- [ ] Fonts
+- [x] Fonts
