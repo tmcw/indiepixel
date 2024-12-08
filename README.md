@@ -1,9 +1,8 @@
-# tidbyt-py
+# Indiepixel
 
 _Contributions more than welcome!_
 
-There's no snappy name yet, but basically… [pixlet](https://github.com/tidbyt/pixlet)
-in Python?
+Basically… [pixlet](https://github.com/tidbyt/pixlet) in Python.
 
 ## Why?
 

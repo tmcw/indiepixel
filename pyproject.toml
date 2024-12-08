@@ -1,7 +1,15 @@
 [project]
-name = "tidbyt-py"
+name = "indiepixel"
 version = "0.1.0"
-description = "Add your description here"
+description = "Generate pixel graphics for the Tidbyt"
+authors = [
+  { name="Tom MacWright", email="tom@macwright.com" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -13,3 +21,6 @@ dependencies = [
     "mypy>=1.13.0",
     "ruff>=0.8.2",
 ]
+[project.urls]
+Homepage = "https://github.com/tmcw/indiepixel"
+Issues = "https://github.com/tmcw/indiepixel/issues"
