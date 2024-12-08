@@ -1,5 +1,7 @@
 # tidbyt-py
 
+_Contributions more than welcome!_
+
 There's no snappy name yet, but basically… [pixlet](https://github.com/tidbyt/pixlet)
 in Python?
 
@@ -18,13 +20,25 @@ a mainstream language.
 This is a WIP implementation of the same concepts as pixlet
 in Python.
 
+## Development
+
+This uses `uv` but I think you can install the deps using `pip`
+too. It's a Flask app: I run it like this:
+
+```
+python -m flask --debug run
+```
+
+After installing dependencies.
+
 ## Status
 
 - [x] WebP generation
 - [x] Rendering the tb-8 pixel font without anti-aliasing
 - Components
-  - [ ] Text _in progress_
-  - [ ] Box _in progress_
+  - [x] Text _in progress_
+  - [x] Box _in progress_
+  - [x] Rect
   - [ ] Animation
   - [ ] Column
   - [ ] Image
@@ -32,4 +46,4 @@ in Python.
   - [ ] Plot
   - [ ] Row
   - [ ] WrappedText
-
+- [ ] Fonts
