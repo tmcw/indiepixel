@@ -35,8 +35,8 @@ After installing dependencies.
 - [x] WebP generation
 - [x] Rendering the tb-8 pixel font without anti-aliasing
 - Components
-  - [x] Text _in progress_
-  - [x] Box _in progress_
+  - [x] Text
+  - [x] Box
   - [x] Rect
   - [x] Column
   - [x] Row
