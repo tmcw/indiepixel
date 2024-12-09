@@ -1,0 +1,3 @@
+[tools]
+python = "3"
+uv = "latest"
