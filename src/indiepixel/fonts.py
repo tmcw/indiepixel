@@ -35,11 +35,9 @@ for f in sys.argv[1:]:
     files = files + glob.glob(f)
 
 for f in files:
-
-    print(f + "...", end=' ')
+    print(f + "...", end=" ")
 
     try:
-
         fp = open(f, "rb")
 
         try:
