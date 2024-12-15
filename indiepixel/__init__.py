@@ -1,4 +1,4 @@
-from PIL import  ImageDraw, ImageFont, ImageColor
+from PIL import ImageDraw, ImageFont, ImageColor
 from os import path
 import glob
 from typing import TypedDict
@@ -10,12 +10,18 @@ type Color = tuple[int, int, int] | tuple[int, int, int, int]
 
 fonts = {}
 
+mypath = path.abspath(path.dirname(__file__))
+
+
+def relpath(p):
+    return path.join(mypath, p)
+
 
 def initialize_fonts():
-    files = glob.glob("./fonts/*.pil")
+    files = glob.glob(relpath("./fonts/*.pil"))
     for file in files:
         name, ext = path.splitext(path.basename(file))
-        fonts[name] = ImageFont.load(file)
+        fonts[name] = ImageFont.load(relpath(file))
 
 
 initialize_fonts()
@@ -38,6 +44,41 @@ class Renderable(ABC):
     @abstractmethod
     def measure(self, bounds: Bounds) -> tuple[int, int]:
         pass
+
+
+# https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md#root
+class RootParams(TypedDict):
+    child: Renderable
+    max_age: NotRequired[str]
+    show_full_application: NotRequired[bool]
+
+
+class Root(Renderable):
+    """The root of the widget tree."""
+
+    delay = 0
+    max_age = 0
+    show_full_application = False
+
+    def __init__(self, **kwargs: Unpack[RootParams]):
+        self.child = kwargs.get("child")
+        self.delay = kwargs.get("delay", 100)
+        self.max_age = kwargs.get("max_age", 100)
+        self.show_full_application = kwargs.get("show_full_application", False)
+
+    def measure(self, bounds: Bounds):
+        return (64, 32)
+
+    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds):
+        self.child.paint(
+            draw,
+            (
+                0,
+                0,
+                64,
+                32,
+            ),
+        )
 
 
 class RectParams(TypedDict):
