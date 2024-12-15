@@ -1,7 +1,4 @@
-from PIL import Image, ImageDraw, ImageFont, ImageColor
-from io import BytesIO
-from flask import Flask, send_file
-from datetime import datetime
+from PIL import  ImageDraw, ImageFont, ImageColor
 from os import path
 import glob
 from typing import TypedDict
@@ -173,8 +170,8 @@ class Text(Renderable):
         draw.text((bounds[0], bounds[1]), self.text, font=self.font, fill=self.color)
 
     def measure(self, bounds: Bounds):
-        (l, t, w, h) = self.font.getbbox(self.text)
-        return (w, h)
+        bbox = self.font.getbbox(self.text)
+        return (bbox[2], bbox[3])
 
 
 """A column of widgets, laid out vertically"""

@@ -1,7 +1,7 @@
-from PIL import Image, ImageDraw, ImageFont, ImageColor
+from PIL import Image, ImageDraw
 from io import BytesIO
 from flask import Flask, send_file
-import pytz
+# import pytz
 
 from widgets import Box, Column, Row, Rect, Text
 
@@ -11,7 +11,7 @@ def render():
     im = Image.new("RGB", (64, 32))
     draw = ImageDraw.Draw(im)
     draw.fontmode = "1"
-    tz = pytz.timezone("America/New_York")
+    # tz = pytz.timezone("America/New_York")
     layout = Box(
         Column(
             [
