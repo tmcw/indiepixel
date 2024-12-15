@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v1
+        with:
+          version: "latest"
+      - name: Install dependencies
+        run: uv sync -p 3.12
+      - name: Mypy
+        run: uv run mypy autobot tests
+      - name: unittest
+        run: uv run python -m unittest discover -s tests/unit
+      - name: lint
+        run: uv run ruff check autobot tests
+      - name: format
+        run: uv run ruff format --check autobot tests
