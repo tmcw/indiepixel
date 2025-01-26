@@ -42,7 +42,7 @@ uv run pre-commit install
 To run `examples/kitchen_sink.py`:
 
 ```
-uv run flask --app examples.kitchen_sink  --debug run
+uv run examples/kitchen_sink.py
 ```
 
 ### Running tests
@@ -81,11 +81,3 @@ uv run ruff format --check
   - [ ] 'expand' option
   - [ ] WrappedText
 - [x] Fonts
-
-```
-
-```
-
-```
-
-```

@@ -174,3 +174,7 @@ def image():
     )
     img_io.seek(0)
     return send_file(img_io, mimetype="image/webp")
+
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)

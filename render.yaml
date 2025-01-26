@@ -5,5 +5,5 @@ services:
     plan: free
     buildCommand: |
       pip install uv
-      uv sync --no-dev
+      uv sync --group examples
     startCommand: gunicorn app:app

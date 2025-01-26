@@ -10,12 +10,7 @@ classifiers = [
 ]
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "pillow>=11.0.0",
-    "flask>=3.1.0",
-    "pytz>=2024.2",
-    "gunicorn>=23.0.0",
-]
+dependencies = ["pillow>=11.0.0"]
 [project.urls]
 Homepage = "https://github.com/tmcw/indiepixel"
 Issues = "https://github.com/tmcw/indiepixel/issues"
@@ -25,7 +20,13 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
-dev = ["ruff>=0.8.2", "pytest>=8.3.4", "pre-commit>=4.1.0"]
+dev = [
+    { include-group = "examples" },
+    "ruff>=0.8.2",
+    "pytest>=8.3.4",
+    "pre-commit>=4.1.0",
+]
+examples = ["flask>=3.1.0", "gunicorn>=23.0.0", "pytz>=2024.2"]
 
 [tool.ruff]
 fix = true

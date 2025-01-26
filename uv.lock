@@ -100,32 +100,40 @@ name = "indiepixel"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "flask" },
-    { name = "gunicorn" },
     { name = "pillow" },
-    { name = "pytz" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "flask" },
+    { name = "gunicorn" },
     { name = "pre-commit" },
     { name = "pytest" },
+    { name = "pytz" },
     { name = "ruff" },
+]
+examples = [
+    { name = "flask" },
+    { name = "gunicorn" },
+    { name = "pytz" },
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "flask", specifier = ">=3.1.0" },
-    { name = "gunicorn", specifier = ">=23.0.0" },
-    { name = "pillow", specifier = ">=11.0.0" },
-    { name = "pytz", specifier = ">=2024.2" },
-]
+requires-dist = [{ name = "pillow", specifier = ">=11.0.0" }]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "flask", specifier = ">=3.1.0" },
+    { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "pre-commit", specifier = ">=4.1.0" },
     { name = "pytest", specifier = ">=8.3.4" },
+    { name = "pytz", specifier = ">=2024.2" },
     { name = "ruff", specifier = ">=0.8.2" },
+]
+examples = [
+    { name = "flask", specifier = ">=3.1.0" },
+    { name = "gunicorn", specifier = ">=23.0.0" },
+    { name = "pytz", specifier = ">=2024.2" },
 ]
 
 [[package]]
