@@ -2,9 +2,7 @@
 name = "indiepixel"
 version = "0.1.0"
 description = "Generate pixel graphics for the Tidbyt"
-authors = [
-  { name="Tom MacWright", email="tom@macwright.com" },
-]
+authors = [{ name = "Tom MacWright", email = "tom@macwright.com" }]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -17,7 +15,7 @@ dependencies = [
     "flask>=3.1.0",
     "pytz>=2024.2",
     "gunicorn>=23.0.0",
-    "typing-extensions>=4.12.2"
+    "typing-extensions>=4.12.2",
 ]
 [project.urls]
 Homepage = "https://github.com/tmcw/indiepixel"
@@ -28,7 +26,16 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
-dev = [
-    "ruff>=0.8.2",
-    "pytest>=8.3.4",
+dev = ["ruff>=0.8.2", "pytest>=8.3.4", "pre-commit>=4.1.0"]
+
+[tool.ruff]
+fix = true
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["ALL"] # include all the rules except ones that are explicitly ignored
+ignore = [
+    "COM",    # let formatter take care commas
+    "D",      # don't require docstrings
+    "ISC001", # conflicts with formatter
 ]
