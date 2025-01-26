@@ -9,3 +9,6 @@ wheels/
 # Virtual environments
 .venv
 .DS_Store
+
+# Generated image files
+.webp
