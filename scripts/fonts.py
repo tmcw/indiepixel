@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 #
 # The Python Imaging Library
 # $Id$
@@ -28,15 +27,14 @@ for f in sys.argv[1:]:
 
 for f in files:
     try:
-        fp = open(f, "rb")
+        with open(f, "rb") as fp:
+            try:
+                p = PcfFontFile.PcfFontFile(fp)
+            except SyntaxError:
+                fp.seek(0)
+                p = BdfFontFile.BdfFontFile(fp)
 
-        try:
-            p = PcfFontFile.PcfFontFile(fp)
-        except SyntaxError:
-            fp.seek(0)
-            p = BdfFontFile.BdfFontFile(fp)
-
-        p.save(f)
+            p.save(f)
 
     except (OSError, SyntaxError):
         pass

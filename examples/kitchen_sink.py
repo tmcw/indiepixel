@@ -148,8 +148,13 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def root():
-    return "<p><img style='image-rendering:pixelated;height:320px;width:640px;' src='./image.webp' /></p>"
+def root() -> str:
+    return (
+        "<p><img "
+        "style='image-rendering:pixelated;height:320px;width:640px;' "
+        "src='./image.webp' />"
+        "</p>"
+    )
 
 
 @app.route("/image.webp")

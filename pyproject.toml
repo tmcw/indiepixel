@@ -35,7 +35,24 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["ALL"] # include all the rules except ones that are explicitly ignored
 ignore = [
+    "ANN",    # let type checker handle annotation checks
+    "ARG002", # allow unused arguments
     "COM",    # let formatter take care commas
     "D",      # don't require docstrings
+    "E501",   # leave line-length enforcement to formatter
+    "ERA001", # allow commented-out code
+    "FIX",    # allow "FIX" comments in code
     "ISC001", # conflicts with formatter
+    "PTH",    # don't require using pathlib instead of os
+    "TD",     # allow TODO comments to be whatever we want
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "ARG", # unused arguments are fine in tests
+    "S",   # allow asserts
+]
+"examples/*" = [
+    "S", # allow asserts
+    "T", # allow prints
 ]

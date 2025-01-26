@@ -17,7 +17,7 @@ def relpath(p):
     return path.join(mypath, p)
 
 
-def initialize_fonts():
+def initialize_fonts() -> None:
     files = glob.glob(relpath("./fonts/*.pil"))
     for file in files:
         name, ext = path.splitext(path.basename(file))
@@ -33,10 +33,9 @@ def maybe_parse_color(color: str | None):
     return None
 
 
-"""The base class for other widgets."""
-
-
 class Renderable(ABC):
+    """The base class for other widgets."""
+
     @abstractmethod
     def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds):
         pass
@@ -56,11 +55,7 @@ class RootParams(TypedDict):
 class Root(Renderable):
     """The root of the widget tree."""
 
-    delay = 0
-    max_age = 0
-    show_full_application = False
-
-    def __init__(self, **kwargs: Unpack[RootParams]):
+    def __init__(self, **kwargs: Unpack[RootParams]) -> None:
         self.child = kwargs.get("child")
         self.delay = kwargs.get("delay", 100)
         self.max_age = kwargs.get("max_age", 100)
@@ -69,7 +64,7 @@ class Root(Renderable):
     def measure(self, bounds: Bounds):
         return (64, 32)
 
-    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds):
+    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds) -> None:
         self.child.paint(
             draw,
             (
@@ -90,24 +85,18 @@ class RectParams(TypedDict):
 
 
 # https://github.com/tidbyt/pixlet/blob/main/render/box.go
-"""A solid-colored rectangle."""
-
-
 class Rect(Renderable):
-    background: Color | None = None
-    padding = 0
-    width = 0
-    height = 0
+    """A solid-colored rectangle."""
 
-    def __init__(self, **kwargs: Unpack[RectParams]):
+    def __init__(self, **kwargs: Unpack[RectParams]) -> None:
         self.width = kwargs.get("width", 10)
         self.height = kwargs.get("height", 10)
-        self.background = maybe_parse_color(kwargs.get("background"))
+        self.background: Color | None = maybe_parse_color(kwargs.get("background"))
 
     def measure(self, bounds: Bounds):
         return (self.width, self.height)
 
-    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds):
+    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds) -> None:
         draw.rectangle(
             [bounds[0], bounds[1], bounds[0] + self.width, bounds[1] + self.height],
             fill=self.background,
@@ -125,22 +114,14 @@ class BoxParams(TypedDict):
 
 
 # https://github.com/tidbyt/pixlet/blob/main/render/box.go
-"""A box that contains one widget inside of it, and can have
-padding and a background."""
-
-
 class Box(Renderable):
     """A box for another widget, this can provide padding
     and a background color if specified."""
 
-    background = None
-    padding = 0
-    expand = False
-
-    def __init__(self, child: Renderable, **kwargs: Unpack[BoxParams]):
+    def __init__(self, child: Renderable, **kwargs: Unpack[BoxParams]) -> None:
         self.child = child
         self.padding = kwargs.get("padding", 0)
-        self.background = maybe_parse_color(kwargs.get("background"))
+        self.background: Color | None = maybe_parse_color(kwargs.get("background"))
         self.expand = kwargs.get("expand", False)
 
     def measure(self, bounds: Bounds):
@@ -149,7 +130,7 @@ class Box(Renderable):
         (w, h) = self.child.measure(bounds)
         return (w + (self.padding * 2) + 1, h + (self.padding * 2) + 1)
 
-    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds):
+    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds) -> None:
         if self.expand:
             (cw, hh) = self.child.measure(bounds)
             if self.background:
@@ -193,21 +174,17 @@ class TextParams(TypedDict):
     color: NotRequired[str]
 
 
-"""Text rendered on the canvas. This is single-line text
-only for now."""
-
-
 class Text(Renderable):
-    text = ""
-    font = fonts["tb-8"]
-    color: Color = (255, 255, 255)
+    """Text rendered on the canvas. This is single-line text
+    only for now.
+    """
 
-    def __init__(self, text: str, **kwargs: Unpack[TextParams]):
+    def __init__(self, text: str, **kwargs: Unpack[TextParams]) -> None:
         self.text = text
-        self.color = ImageColor.getrgb(kwargs.get("color", "#fff"))
+        self.color: Color = ImageColor.getrgb(kwargs.get("color", "#fff"))
         self.font = fonts[kwargs.get("font", "tb-8")]
 
-    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds):
+    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds) -> None:
         draw.text((bounds[0], bounds[1]), self.text, font=self.font, fill=self.color)
 
     def measure(self, bounds: Bounds):
@@ -215,13 +192,10 @@ class Text(Renderable):
         return (bbox[2], bbox[3])
 
 
-"""A column of widgets, laid out vertically"""
-
-
 class Column(Renderable):
-    children = []
+    """A column of widgets, laid out vertically"""
 
-    def __init__(self, children: list[Renderable]):
+    def __init__(self, children: list[Renderable]) -> None:
         self.children = children
 
     def measure(self, bounds: Bounds):
@@ -237,7 +211,7 @@ class Column(Renderable):
             height = height + ch + 1
         return (width, height)
 
-    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds):
+    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds) -> None:
         top = bounds[1]
         for child in self.children:
             child.paint(draw, (bounds[0], top, bounds[2], bounds[3]))
@@ -256,18 +230,14 @@ class RowParams(TypedDict):
     expand: NotRequired[bool]
 
 
-"""A row of widgets, laid out horizontally"""
-
-
 class Row(Renderable):
-    children = []
-    expand = False
+    """A row of widgets, laid out horizontally"""
 
-    def __init__(self, children: list[Renderable], **kwargs: Unpack[RowParams]):
+    def __init__(self, children: list[Renderable], **kwargs: Unpack[RowParams]) -> None:
         self.children = children
         self.expand = kwargs.get("expand", False)
 
-    def measure(self, bounds: Bounds):
+    def measure(self, bounds: Bounds) -> tuple[int, int]:
         width = 0
         height = 0
         for child in self.children:
@@ -278,11 +248,9 @@ class Row(Renderable):
             return (bounds[2] - bounds[0], height)
         return (width, height)
 
-    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds):
+    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds) -> None:
         if self.expand:
-            widths = []
-            for child in self.children:
-                widths.append(child.measure(bounds))
+            widths = [child.measure(bounds) for child in self.children]  # noqa: F841
             left = bounds[0]
             for child in self.children:
                 child.paint(draw, (left, bounds[1], bounds[2], bounds[3]))
