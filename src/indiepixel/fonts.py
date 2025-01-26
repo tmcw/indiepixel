@@ -10,14 +10,12 @@
 # 2002-03-10 fl   use "from PIL import"
 #
 
-from __future__ import print_function
 
 import glob
 import sys
 
 # drivers
-from PIL import BdfFontFile
-from PIL import PcfFontFile
+from PIL import BdfFontFile, PcfFontFile
 
 VERSION = "0.4"
 
@@ -48,7 +46,7 @@ for f in files:
 
         p.save(f)
 
-    except (SyntaxError, IOError):
+    except (OSError, SyntaxError):
         print("failed")
 
     else:

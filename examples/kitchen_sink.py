@@ -1,9 +1,10 @@
-from PIL import Image, ImageDraw
 from io import BytesIO
-from flask import Flask, send_file
-# import pytz
 
-from widgets import Box, Column, Row, Rect, Text
+from flask import Flask, send_file
+from PIL import Image, ImageDraw
+
+# import pytz
+from indiepixel import Box, Column, Rect, Row, Text
 
 
 def render():
@@ -30,7 +31,7 @@ def render():
                         Rect(width=4, height=4, background="#00f"),
                     ]
                 ),
-                Row([Text("6x10", font="6x10"), Text("thumb", font="tom-thumb")]),
+                Row([Text("6x10", font="6x10"), Text("hello", font="tom-thumb")]),
                 Row(
                     [
                         Rect(
@@ -142,19 +143,6 @@ def render():
     frames.append(im)
     return frames
 
-
-rendered = render()
-# It's very important to specify lossless=True here,
-# otherwise we get blurry output
-rendered[0].save(
-    "output.webp",
-    "WEBP",
-    lossless=True,
-    alpha_quality=100,
-    save_all=True,
-    append_images=rendered[1:],
-    duration=100,
-)
 
 app = Flask(__name__)
 

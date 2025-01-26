@@ -1,9 +1,9 @@
-from PIL import ImageDraw, ImageFont, ImageColor
-from os import path
 import glob
-from typing import TypedDict
-from typing_extensions import Unpack, NotRequired
 from abc import ABC, abstractmethod
+from os import path
+from typing import NotRequired, TypedDict, Unpack
+
+from PIL import ImageColor, ImageDraw, ImageFont
 
 type Bounds = tuple[int, int, int, int]
 type Color = tuple[int, int, int] | tuple[int, int, int, int]
@@ -229,8 +229,7 @@ class Column(Renderable):
         height = 0
         for child in self.children:
             (cw, ch) = child.measure(bounds)
-            if cw > width:
-                width = cw
+            width = max(cw, width)
             # NOTE: this might be an off-by-one,
             # it's pretty fuzzy right now but if
             # you omit this, you'll get overlapping items
@@ -273,13 +272,11 @@ class Row(Renderable):
         height = 0
         for child in self.children:
             (cw, ch) = child.measure(bounds)
-            if ch > height:
-                height = ch
+            height = max(ch, height)
             width = width + cw
         if self.expand:
             return (bounds[2] - bounds[0], height)
-        else:
-            return (width, height)
+        return (width, height)
 
     def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds):
         if self.expand:
@@ -290,7 +287,7 @@ class Row(Renderable):
             for child in self.children:
                 child.paint(draw, (left, bounds[1], bounds[2], bounds[3]))
                 (cw, ch) = child.measure(bounds)
-                # todo: these +1 increments are a code smell,
+                # TODO: these +1 increments are a code smell,
                 # and I want to know why they aren't correct'
                 left = left + cw + 1
         else:
@@ -298,6 +295,6 @@ class Row(Renderable):
             for child in self.children:
                 child.paint(draw, (left, bounds[1], bounds[2], bounds[3]))
                 (cw, ch) = child.measure(bounds)
-                # todo: these +1 increments are a code smell,
+                # TODO: these +1 increments are a code smell,
                 # and I want to know why they aren't correct'
                 left = left + cw + 1
