@@ -20,12 +20,6 @@ from PIL import BdfFontFile, PcfFontFile
 VERSION = "0.4"
 
 if len(sys.argv) <= 1:
-    print("PILFONT", VERSION, "-- PIL font compiler.")
-    print()
-    print("Usage: pilfont fontfiles...")
-    print()
-    print("Convert given font files to the PIL raster font format.")
-    print("This version of pilfont supports X BDF and PCF fonts.")
     sys.exit(1)
 
 files = []
@@ -33,8 +27,6 @@ for f in sys.argv[1:]:
     files = files + glob.glob(f)
 
 for f in files:
-    print(f + "...", end=" ")
-
     try:
         fp = open(f, "rb")
 
@@ -47,7 +39,7 @@ for f in files:
         p.save(f)
 
     except (OSError, SyntaxError):
-        print("failed")
+        pass
 
     else:
-        print("OK")
+        pass
