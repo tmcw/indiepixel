@@ -1,6 +1,5 @@
-import glob
 from abc import ABC, abstractmethod
-from os import path
+from pathlib import Path
 from typing import NotRequired, TypedDict, Unpack
 
 from PIL import ImageColor, ImageDraw, ImageFont
@@ -8,20 +7,16 @@ from PIL import ImageColor, ImageDraw, ImageFont
 type Bounds = tuple[int, int, int, int]
 type Color = tuple[int, int, int] | tuple[int, int, int, int]
 
-fonts = {}
+fonts: dict[str, ImageFont.ImageFont] = {}
 
-mypath = path.abspath(path.dirname(__file__))
-
-
-def relpath(p):
-    return path.join(mypath, p)
+HERE = Path(__file__).resolve().parent
 
 
 def initialize_fonts() -> None:
-    files = glob.glob(relpath("./fonts/*.pil"))
+    files = (HERE / "fonts").glob("*.pil")
     for file in files:
-        name, ext = path.splitext(path.basename(file))
-        fonts[name] = ImageFont.load(relpath(file))
+        name = file.stem
+        fonts[name] = ImageFont.load(file)
 
 
 initialize_fonts()
