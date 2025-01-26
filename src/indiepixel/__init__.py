@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import NotRequired, TypedDict, Unpack
 
 from PIL import ImageColor, ImageDraw, ImageFont
 
@@ -41,20 +40,21 @@ class Renderable(ABC):
 
 
 # https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md#root
-class RootParams(TypedDict):
-    child: Renderable
-    max_age: NotRequired[str]
-    show_full_application: NotRequired[bool]
-
-
 class Root(Renderable):
     """The root of the widget tree."""
 
-    def __init__(self, **kwargs: Unpack[RootParams]) -> None:
-        self.child = kwargs.get("child")
-        self.delay = kwargs.get("delay", 100)
-        self.max_age = kwargs.get("max_age", 100)
-        self.show_full_application = kwargs.get("show_full_application", False)
+    def __init__(
+        self,
+        *,
+        child: Renderable,
+        max_age: int = 100,
+        delay: int = 100,
+        show_full_application: bool = False,
+    ) -> None:
+        self.child = child
+        self.max_age = max_age
+        self.delay = delay
+        self.show_full_application = show_full_application
 
     def measure(self, bounds: Bounds):
         return (64, 32)
@@ -71,22 +71,20 @@ class Root(Renderable):
         )
 
 
-class RectParams(TypedDict):
-    """A color, anything parseable by ImageColor.getrgb"""
-
-    background: str
-    width: int
-    height: int
-
-
 # https://github.com/tidbyt/pixlet/blob/main/render/box.go
 class Rect(Renderable):
     """A solid-colored rectangle."""
 
-    def __init__(self, **kwargs: Unpack[RectParams]) -> None:
-        self.width = kwargs.get("width", 10)
-        self.height = kwargs.get("height", 10)
-        self.background: Color | None = maybe_parse_color(kwargs.get("background"))
+    def __init__(
+        self,
+        *,
+        width: int = 10,
+        height: int = 10,
+        background: str | None = None,
+    ) -> None:
+        self.width = width
+        self.height = height
+        self.background: Color | None = maybe_parse_color(background)
 
     def measure(self, bounds: Bounds):
         return (self.width, self.height)
@@ -98,26 +96,23 @@ class Rect(Renderable):
         )
 
 
-class BoxParams(TypedDict):
-    """Padding, in pixels, for all sides"""
-
-    padding: NotRequired[int]
-    background: NotRequired[str]
-    width: NotRequired[int]
-    height: NotRequired[int]
-    expand: NotRequired[bool]
-
-
 # https://github.com/tidbyt/pixlet/blob/main/render/box.go
 class Box(Renderable):
     """A box for another widget, this can provide padding
     and a background color if specified."""
 
-    def __init__(self, child: Renderable, **kwargs: Unpack[BoxParams]) -> None:
+    def __init__(
+        self,
+        child: Renderable,
+        *,
+        padding: int = 0,
+        background: str | None = None,
+        expand: bool = False,
+    ) -> None:
         self.child = child
-        self.padding = kwargs.get("padding", 0)
-        self.background: Color | None = maybe_parse_color(kwargs.get("background"))
-        self.expand = kwargs.get("expand", False)
+        self.padding = padding
+        self.background: Color | None = maybe_parse_color(background)
+        self.expand = expand
 
     def measure(self, bounds: Bounds):
         if self.expand:
@@ -164,20 +159,21 @@ class Box(Renderable):
             )
 
 
-class TextParams(TypedDict):
-    font: NotRequired[str]
-    color: NotRequired[str]
-
-
 class Text(Renderable):
     """Text rendered on the canvas. This is single-line text
     only for now.
     """
 
-    def __init__(self, text: str, **kwargs: Unpack[TextParams]) -> None:
+    def __init__(
+        self,
+        text: str,
+        *,
+        color: str = "#fff",
+        font: str = "tb-8",
+    ) -> None:
         self.text = text
-        self.color: Color = ImageColor.getrgb(kwargs.get("color", "#fff"))
-        self.font = fonts[kwargs.get("font", "tb-8")]
+        self.color: Color = ImageColor.getrgb(color)
+        self.font = fonts[font]
 
     def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds) -> None:
         draw.text((bounds[0], bounds[1]), self.text, font=self.font, fill=self.color)
@@ -221,16 +217,12 @@ class Column(Renderable):
             top = top + ch + 1
 
 
-class RowParams(TypedDict):
-    expand: NotRequired[bool]
-
-
 class Row(Renderable):
     """A row of widgets, laid out horizontally"""
 
-    def __init__(self, children: list[Renderable], **kwargs: Unpack[RowParams]) -> None:
+    def __init__(self, children: list[Renderable], *, expand: bool = False) -> None:
         self.children = children
-        self.expand = kwargs.get("expand", False)
+        self.expand = expand
 
     def measure(self, bounds: Bounds) -> tuple[int, int]:
         width = 0
