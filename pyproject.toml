@@ -2,9 +2,7 @@
 name = "indiepixel"
 version = "0.1.0"
 description = "Generate pixel graphics for the Tidbyt"
-authors = [
-  { name="Tom MacWright", email="tom@macwright.com" },
-]
+authors = [{ name = "Tom MacWright", email = "tom@macwright.com" }]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -12,13 +10,7 @@ classifiers = [
 ]
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "pillow>=11.0.0",
-    "flask>=3.1.0",
-    "pytz>=2024.2",
-    "gunicorn>=23.0.0",
-    "typing-extensions>=4.12.2"
-]
+dependencies = ["pillow>=11.0.0"]
 [project.urls]
 Homepage = "https://github.com/tmcw/indiepixel"
 Issues = "https://github.com/tmcw/indiepixel/issues"
@@ -29,6 +21,38 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    { include-group = "examples" },
     "ruff>=0.8.2",
     "pytest>=8.3.4",
+    "pre-commit>=4.1.0",
+]
+examples = ["flask>=3.1.0", "gunicorn>=23.0.0", "pytz>=2024.2"]
+
+[tool.ruff]
+fix = true
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["ALL"] # include all the rules except ones that are explicitly ignored
+ignore = [
+    "ANN",    # let type checker handle annotation checks
+    "ARG002", # allow unused arguments
+    "COM",    # let formatter take care commas
+    "D",      # don't require docstrings
+    "E501",   # leave line-length enforcement to formatter
+    "ERA001", # allow commented-out code
+    "FIX",    # allow "FIX" comments in code
+    "ISC001", # conflicts with formatter
+    "PTH",    # don't require using pathlib instead of os
+    "TD",     # allow TODO comments to be whatever we want
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "ARG", # unused arguments are fine in tests
+    "S",   # allow asserts
+]
+"examples/*" = [
+    "S", # allow asserts
+    "T", # allow prints
 ]

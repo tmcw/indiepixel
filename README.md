@@ -21,14 +21,48 @@ in Python.
 
 ## Development
 
-This uses `uv` but I think you can install the deps using `pip`
-too. It's a Flask app: I run it like this:
+### Environment setup
+
+First make sure you have [uv installed](https://docs.astral.sh/uv/getting-started/installation/).
+
+Install dependencies with:
 
 ```
-python -m flask --debug run
+uv sync
 ```
 
-After installing dependencies.
+Install pre-commit hooks:
+
+```
+uv run pre-commit install
+```
+
+### Running examples
+
+To run `examples/kitchen_sink.py`:
+
+```
+uv run examples/kitchen_sink.py
+```
+
+### Running tests
+
+```
+uv run pytest
+```
+
+### Linting and formatting
+
+```
+uv run pre-commit run --all-files
+```
+
+Or run ruff directly
+
+```
+uv run ruff check
+uv run ruff format --check
+```
 
 ## Status
 

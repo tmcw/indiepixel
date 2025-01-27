@@ -1,9 +1,10 @@
-from PIL import Image, ImageDraw
 from io import BytesIO
-from flask import Flask, send_file
-# import pytz
 
-from widgets import Box, Column, Row, Rect, Text
+from flask import Flask, send_file
+from PIL import Image, ImageDraw
+
+# import pytz
+from indiepixel import Box, Column, Rect, Row, Text
 
 
 def render():
@@ -30,7 +31,7 @@ def render():
                         Rect(width=4, height=4, background="#00f"),
                     ]
                 ),
-                Row([Text("6x10", font="6x10"), Text("thumb", font="tom-thumb")]),
+                Row([Text("6x10", font="6x10"), Text("hello", font="tom-thumb")]),
                 Row(
                     [
                         Rect(
@@ -143,25 +144,17 @@ def render():
     return frames
 
 
-rendered = render()
-# It's very important to specify lossless=True here,
-# otherwise we get blurry output
-rendered[0].save(
-    "output.webp",
-    "WEBP",
-    lossless=True,
-    alpha_quality=100,
-    save_all=True,
-    append_images=rendered[1:],
-    duration=100,
-)
-
 app = Flask(__name__)
 
 
 @app.route("/")
-def root():
-    return "<p><img style='image-rendering:pixelated;height:320px;width:640px;' src='./image.webp' /></p>"
+def root() -> str:
+    return (
+        "<p><img "
+        "style='image-rendering:pixelated;height:320px;width:640px;' "
+        "src='./image.webp' />"
+        "</p>"
+    )
 
 
 @app.route("/image.webp")
@@ -181,3 +174,7 @@ def image():
     )
     img_io.seek(0)
     return send_file(img_io, mimetype="image/webp")
+
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)

@@ -4,5 +4,6 @@ services:
     runtime: python
     plan: free
     buildCommand: |
-      pip install -r requirements.txt
+      pip install uv
+      uv sync --group examples
     startCommand: gunicorn app:app
