@@ -1,11 +1,11 @@
 import datetime
-import pytz
 
+import pytz
 from PIL import Image as ImagePIL
 from PIL import ImageDraw
 
 # import pytz
-from indiepixel import Box,  Row, Text
+from indiepixel import Box, Row, Text
 
 
 def render():

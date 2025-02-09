@@ -1,7 +1,5 @@
-from io import BytesIO
 from pathlib import Path
 
-from flask import Flask, send_file
 from PIL import Image as ImagePIL
 from PIL import ImageDraw
 

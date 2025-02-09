@@ -1,8 +1,12 @@
-import click, sys, os
+import os
+import sys
+from importlib.util import module_from_spec, spec_from_file_location
 from io import BytesIO
 from pathlib import Path
-from importlib.util import spec_from_file_location, module_from_spec
+
+import click
 from flask import Flask, send_file
+
 
 def create_server(mods):
     app = Flask(__name__)
@@ -40,7 +44,7 @@ def create_server(mods):
         img_io = BytesIO()
         mod = [x for x in mods if x[0] == subpath]
         if len(mod) == 0:
-            return f'Image not found, available modules are {map(lambda m: m[0], mods)}'
+            return f"Image not found, available modules are {map(lambda m: m[0], mods)}"
         rendered = mod[0][1].render()
         # It's very important to specify lossless=True here,
         # otherwise we get blurry output
@@ -63,7 +67,7 @@ def import_from_path(module_name, file_path):
     """Import a module given its name and file path."""
     print(f"importing {file_path}")
     spec = spec_from_file_location(module_name, file_path)
-    if spec == None or spec.loader == None:
+    if spec is None or spec.loader is None:
         raise Exception("Could not get spec")
     module = module_from_spec(spec)
     sys.modules[module_name] = module
@@ -73,13 +77,12 @@ def import_from_path(module_name, file_path):
 def load_from_path(filename):
     if os.path.isdir(filename):
         files = Path(filename).glob("*.py")
-        return [(str(p), import_from_path('render', p)) for p in files]
-    else:
-        return [(filename, import_from_path('render', filename))]
+        return [(str(p), import_from_path("render", p)) for p in files]
+    return [(filename, import_from_path("render", filename))]
 
 
 @click.command()
-@click.argument('filename')
+@click.argument("filename")
 def cli(filename):
     mods = load_from_path(filename)
     app = create_server(mods)

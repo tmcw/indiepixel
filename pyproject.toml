@@ -52,6 +52,13 @@ ignore = [
     "ISC001", # conflicts with formatter
     "PTH",    # don't require using pathlib instead of os
     "TD",     # allow TODO comments to be whatever we want
+    "TRY003",
+    "TRY002",
+    "PERF401",
+    "C417",
+    "INP001",
+    "EM101",
+    "T201"
 ]
 
 [tool.ruff.lint.per-file-ignores]
