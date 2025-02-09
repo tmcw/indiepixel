@@ -15,7 +15,7 @@ def initialize_fonts() -> None:
     files = (HERE / "fonts").glob("*.pil")
     for file in files:
         name = file.stem
-        fonts[name] = ImageFont.load(file)
+        fonts[name] = ImageFont.load(str(file))
 
 
 initialize_fonts()
