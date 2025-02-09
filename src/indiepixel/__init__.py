@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from PIL import ImageColor, ImageDraw, ImageFont, Image as ImagePIL
+from PIL import Image as ImagePIL
+from PIL import ImageColor, ImageDraw, ImageFont
 
 type Bounds = tuple[int, int, int, int]
 type Color = tuple[int, int, int] | tuple[int, int, int, int]

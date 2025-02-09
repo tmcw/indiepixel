@@ -1,11 +1,12 @@
 from io import BytesIO
-
 from pathlib import Path
+
 from flask import Flask, send_file
-from PIL import Image as ImagePIL, ImageDraw
+from PIL import Image as ImagePIL
+from PIL import ImageDraw
 
 # import pytz
-from indiepixel import Box, Column, Rect, Row, Text, Image
+from indiepixel import Box, Column, Image, Rect, Row, Text
 
 
 def render():
@@ -19,7 +20,7 @@ def render():
             [
                 Row(
                     [
-                        Image(src=str(Path('./examples/pixel-16x16.png').resolve())),
+                        Image(src=str(Path("./examples/pixel-16x16.png").resolve())),
                         Rect(width=4, height=4, background="purple"),
                         Rect(width=4, height=4, background="orange"),
                         Rect(width=4, height=4, background="blue"),
