@@ -56,3 +56,7 @@ ignore = [
     "S", # allow asserts
     "T", # allow prints
 ]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
