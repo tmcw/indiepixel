@@ -1,5 +1,7 @@
 # Indiepixel
 
+![PyPI - Version](https://img.shields.io/pypi/v/indiepixel)
+
 _Contributions more than welcome!_
 
 Basically… [pixlet](https://github.com/tidbyt/pixlet) in Python.
