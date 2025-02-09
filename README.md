@@ -66,6 +66,14 @@ uv run ruff check
 uv run ruff format --check
 ```
 
+## Publishing
+
+This needs you to build before publishing:
+
+1. Bump version in pyproject.toml
+2. `uv build`
+2. `uv publish`
+
 ## Status
 
 - [x] WebP generation
