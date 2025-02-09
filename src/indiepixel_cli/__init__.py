@@ -10,6 +10,7 @@ from flask import Flask, send_file
 
 def create_server(mods):
     app = Flask(__name__)
+
     @app.route("/")
     def root() -> str:
         image_list = []
@@ -20,9 +21,9 @@ def create_server(mods):
                 <h3>{mod[0]}</h3>
                 <img style='image-rendering:pixelated;height:320px;width:640px;'  src='./image/{mod[0]}.webp' />
                 </div>
-                """)
-        return (
-            f"""
+                """
+            )
+        return f"""
             <!DOCTYPE html>
             <html>
             <head>
@@ -38,7 +39,7 @@ def create_server(mods):
             </main>
             </html>
             """
-        )
+
     @app.route("/image/<path:subpath>.webp")
     def image(subpath):
         img_io = BytesIO()
@@ -73,6 +74,7 @@ def import_from_path(module_name, file_path):
     sys.modules[module_name] = module
     spec.loader.exec_module(module)
     return module
+
 
 def load_from_path(filename):
     if os.path.isdir(filename):

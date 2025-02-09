@@ -16,10 +16,13 @@ def render():
     tz = pytz.timezone("America/New_York")
     now = datetime.datetime.now(tz)
     layout = Box(
-        Row(children=[
-             Text(now.strftime("%I:%M"), color = "#fff"),
-        ]),
-        padding=2, background="#000"
+        Row(
+            children=[
+                Text(now.strftime("%I:%M"), color="#fff"),
+            ]
+        ),
+        padding=2,
+        background="#000",
     )
     layout.paint(draw, im, (0, 0, 64, 32))
     frames.append(im)
