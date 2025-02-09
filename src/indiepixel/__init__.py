@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from PIL import ImageColor, ImageDraw, ImageFont
+from PIL import ImageColor, ImageDraw, ImageFont, Image as ImagePIL
 
 type Bounds = tuple[int, int, int, int]
 type Color = tuple[int, int, int] | tuple[int, int, int, int]
@@ -31,7 +31,7 @@ class Renderable(ABC):
     """The base class for other widgets."""
 
     @abstractmethod
-    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds):
+    def paint(self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds):
         pass
 
     @abstractmethod
@@ -59,9 +59,10 @@ class Root(Renderable):
     def measure(self, bounds: Bounds):
         return (64, 32)
 
-    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds) -> None:
+    def paint(self, draw: ImageDraw.ImageDraw,  im: ImagePIL.Image, bounds: Bounds) -> None:
         self.child.paint(
             draw,
+            im,
             (
                 0,
                 0,
@@ -89,10 +90,32 @@ class Rect(Renderable):
     def measure(self, bounds: Bounds):
         return (self.width, self.height)
 
-    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds) -> None:
+    def paint(self, draw: ImageDraw.ImageDraw,  im: ImagePIL.Image, bounds: Bounds) -> None:
         draw.rectangle(
             [bounds[0], bounds[1], bounds[0] + self.width, bounds[1] + self.height],
             fill=self.background,
+        )
+
+
+# https://github.com/tidbyt/pixlet/blob/main/render/box.go
+class Image(Renderable):
+    """An image"""
+
+    def __init__(
+        self,
+        *,
+        src: str,
+    ) -> None:
+        self.src = src
+        self._image = ImagePIL.open(src)
+
+    def measure(self, bounds: Bounds):
+        return (self._image.width, self._image.height)
+
+    def paint(self, draw: ImageDraw.ImageDraw,  im: ImagePIL.Image, bounds: Bounds) -> None:
+        im.paste(
+            self._image,
+            (bounds[0], bounds[1]),
         )
 
 
@@ -120,7 +143,7 @@ class Box(Renderable):
         (w, h) = self.child.measure(bounds)
         return (w + (self.padding * 2) + 1, h + (self.padding * 2) + 1)
 
-    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds) -> None:
+    def paint(self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds) -> None:
         if self.expand:
             (cw, hh) = self.child.measure(bounds)
             if self.background:
@@ -129,6 +152,7 @@ class Box(Renderable):
                 )
             self.child.paint(
                 draw,
+                im,
                 (
                     bounds[0] + self.padding,
                     bounds[1] + self.padding,
@@ -150,6 +174,7 @@ class Box(Renderable):
                 )
             self.child.paint(
                 draw,
+                im,
                 (
                     bounds[0] + self.padding,
                     bounds[1] + self.padding,
@@ -175,7 +200,7 @@ class Text(Renderable):
         self.color: Color = ImageColor.getrgb(color)
         self.font = fonts[font]
 
-    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds) -> None:
+    def paint(self, draw: ImageDraw.ImageDraw,  im: ImagePIL.Image, bounds: Bounds) -> None:
         draw.text((bounds[0], bounds[1]), self.text, font=self.font, fill=self.color)
 
     def measure(self, bounds: Bounds):
@@ -202,10 +227,10 @@ class Column(Renderable):
             height = height + ch + 1
         return (width, height)
 
-    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds) -> None:
+    def paint(self, draw: ImageDraw.ImageDraw,  im: ImagePIL.Image, bounds: Bounds) -> None:
         top = bounds[1]
         for child in self.children:
-            child.paint(draw, (bounds[0], top, bounds[2], bounds[3]))
+            child.paint(draw, im,(bounds[0], top, bounds[2], bounds[3]))
             # Debug
             # draw.rectangle([
             #     bounds[0],
@@ -235,12 +260,12 @@ class Row(Renderable):
             return (bounds[2] - bounds[0], height)
         return (width, height)
 
-    def paint(self, draw: ImageDraw.ImageDraw, bounds: Bounds) -> None:
+    def paint(self, draw: ImageDraw.ImageDraw,  im: ImagePIL.Image, bounds: Bounds) -> None:
         if self.expand:
             widths = [child.measure(bounds) for child in self.children]  # noqa: F841
             left = bounds[0]
             for child in self.children:
-                child.paint(draw, (left, bounds[1], bounds[2], bounds[3]))
+                child.paint(draw, im, (left, bounds[1], bounds[2], bounds[3]))
                 (cw, ch) = child.measure(bounds)
                 # TODO: these +1 increments are a code smell,
                 # and I want to know why they aren't correct'
@@ -248,7 +273,7 @@ class Row(Renderable):
         else:
             left = bounds[0]
             for child in self.children:
-                child.paint(draw, (left, bounds[1], bounds[2], bounds[3]))
+                child.paint(draw, im, (left, bounds[1], bounds[2], bounds[3]))
                 (cw, ch) = child.measure(bounds)
                 # TODO: these +1 increments are a code smell,
                 # and I want to know why they aren't correct'

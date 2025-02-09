@@ -1,15 +1,16 @@
 from io import BytesIO
 
+from pathlib import Path
 from flask import Flask, send_file
-from PIL import Image, ImageDraw
+from PIL import Image as ImagePIL, ImageDraw
 
 # import pytz
-from indiepixel import Box, Column, Rect, Row, Text
+from indiepixel import Box, Column, Rect, Row, Text, Image
 
 
 def render():
     frames = []
-    im = Image.new("RGB", (64, 32))
+    im = ImagePIL.new("RGB", (64, 32))
     draw = ImageDraw.Draw(im)
     draw.fontmode = "1"
     # tz = pytz.timezone("America/New_York")
@@ -18,6 +19,7 @@ def render():
             [
                 Row(
                     [
+                        Image(src=str(Path('./examples/pixel-16x16.png').resolve())),
                         Rect(width=4, height=4, background="purple"),
                         Rect(width=4, height=4, background="orange"),
                         Rect(width=4, height=4, background="blue"),
@@ -139,7 +141,7 @@ def render():
     #     ]),
     #     padding=2, background=(100, 0, 0, 255)
     # )
-    layout.paint(draw, (0, 0, 64, 32))
+    layout.paint(draw, im, (0, 0, 64, 32))
     frames.append(im)
     return frames
 

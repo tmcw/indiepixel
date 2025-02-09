@@ -75,7 +75,9 @@ uv run ruff format --check
   - [x] Column
   - [x] Row
   - [ ] Animation
-  - [ ] Image
+  - [x] Image
+    - [ ] Resizing
+    - [ ] Animation
   - [ ] PieChart
   - [ ] Plot
   - [ ] 'expand' option
