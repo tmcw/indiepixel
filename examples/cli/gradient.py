@@ -5,7 +5,7 @@ from PIL import Image as ImagePIL
 from PIL import ImageDraw
 
 # import pytz
-from indiepixel import Box, Row, Rect, Column
+from indiepixel import Box, Column, Rect, Row
 
 
 def render():
@@ -20,14 +20,16 @@ def render():
             children=[
                 Row(
                     children=[
-                        Rect(height=16, width=1, background=(0, 0, i * 4)) for i in range(0,64)
+                        Rect(height=16, width=1, background=(0, 0, i * 4))
+                        for i in range(64)
                     ]
                 ),
                 Row(
                     children=[
-                        Rect(height=16, width=1, background=(255 - (i * 4), 0, i * 4)) for i in range(0,64)
+                        Rect(height=16, width=1, background=(255 - (i * 4), 0, i * 4))
+                        for i in range(64)
                     ]
-                )
+                ),
             ]
         ),
         background="#000",

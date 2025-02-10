@@ -1,3 +1,4 @@
 [tools]
 python = "3"
+ruff = "latest"
 uv = "latest"

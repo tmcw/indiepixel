@@ -34,7 +34,7 @@ def create_server(mods):
             Indiepixel
             </h1>
             <p>
-            {'\n'.join(image_list)}
+            {"\n".join(image_list)}
             </p>
             </main>
             </html>
