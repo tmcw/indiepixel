@@ -96,12 +96,20 @@ wheels = [
 ]
 
 [[package]]
+name = "imgcat"
+version = "0.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9c/fa/c09733cb5f8a793d2429d06c510a9eaa605fc14381de6701c2df6be69502/imgcat-0.6.0.tar.gz", hash = "sha256:b3547b68adb3f1f9b611390e804c94ebd464a215858543cbf97df86fbcd7935c", size = 12681 }
+
+[[package]]
 name = "indiepixel"
-version = "0.3.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
+    { name = "imgcat" },
     { name = "pillow" },
+    { name = "sixel" },
 ]
 
 [package.dev-dependencies]
@@ -122,7 +130,9 @@ examples = [
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = ">=8.1.7" },
+    { name = "imgcat", specifier = ">=0.6.0" },
     { name = "pillow", specifier = ">=11.0.0" },
+    { name = "sixel", specifier = ">=0.2.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -371,6 +381,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/0b/08/e8f519f61f1d624264bfd6b8829e4c5f31c3c61193bc3cff1f19dbe7626a/ruff-0.8.2-py3-none-win32.whl", hash = "sha256:ac42caaa0411d6a7d9594363294416e0e48fc1279e1b0e948391695db2b3d5b1", size = 8729396 },
     { url = "https://files.pythonhosted.org/packages/f8/d4/ba1c7ab72aba37a2b71fe48ab95b80546dbad7a7f35ea28cf66fc5cea5f6/ruff-0.8.2-py3-none-win_amd64.whl", hash = "sha256:2aae99ec70abf43372612a838d97bfe77d45146254568d94926e8ed5bbb409ea", size = 9594729 },
     { url = "https://files.pythonhosted.org/packages/23/34/db20e12d3db11b8a2a8874258f0f6d96a9a4d631659d54575840557164c8/ruff-0.8.2-py3-none-win_arm64.whl", hash = "sha256:fb88e2a506b70cfbc2de6fae6681c4f944f7dd5f2fe87233a7233d888bad73e8", size = 9035131 },
+]
+
+[[package]]
+name = "sixel"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pillow" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/1b/a5/0604243500f7bc16bd87d396f832c0c8b4cf7b29c40cc3f612e3c8be814b/sixel-0.2.0.tar.gz", hash = "sha256:6b28414eb22e2242d16e282226d08406c27c9e630daf209cc9d9ffe4b27465af", size = 19548 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7a/4b/cc8a06652ca1aee61e437908917e71e8a7185fee104962a458525c675bd9/sixel-0.2.0-py3-none-any.whl", hash = "sha256:7e02df14d9915f33c595bac90bc1593dbc3b9e898d625adec74420fba326ecc3", size = 20251 },
 ]
 
 [[package]]
