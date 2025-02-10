@@ -6,6 +6,7 @@ from PIL import ImageColor, ImageDraw, ImageFont
 
 type Bounds = tuple[int, int, int, int]
 type Color = tuple[int, int, int] | tuple[int, int, int, int]
+type InputColor = str | tuple[int, int, int] | None
 
 fonts: dict[str, ImageFont.ImageFont] = {}
 
@@ -22,10 +23,16 @@ def initialize_fonts() -> None:
 initialize_fonts()
 
 
-def maybe_parse_color(color: str | None):
-    if color:
-        return ImageColor.getrgb(color)
-    return None
+def maybe_parse_color(color: InputColor):
+    """Parse either a CSS-style color string, a (r, g, b) tuple,
+    or None (transparent) into a color usable in indiepixel"""
+    match color:
+        case None:
+            return None
+        case str(color_str):
+            return ImageColor.getrgb(color_str)
+        case (r, g, b):
+            return (r, g, b)
 
 
 class Renderable(ABC):
@@ -67,6 +74,7 @@ class Root(Renderable):
             draw,
             im,
             (
+                # TODO: this hardcodes dimensions and should not.
                 0,
                 0,
                 64,
@@ -84,7 +92,7 @@ class Rect(Renderable):
         *,
         width: int = 10,
         height: int = 10,
-        background: str | None = None,
+        background: InputColor = None,
     ) -> None:
         self.width = width
         self.height = height
@@ -136,7 +144,7 @@ class Box(Renderable):
         child: Renderable,
         *,
         padding: int = 0,
-        background: str | None = None,
+        background: InputColor = None,
         expand: bool = False,
     ) -> None:
         self.child = child
@@ -202,7 +210,7 @@ class Text(Renderable):
         self,
         text: str,
         *,
-        color: str = "#fff",
+        color: InputColor = "#fff",
         font: str = "tb-8",
     ) -> None:
         self.text = text
