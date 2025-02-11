@@ -18,13 +18,8 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: pytest
+      - name: Run tests
         run: uv run pytest
-
-      - name: lint
-        run: uv run ruff check
-      - name: format
-        run: uv run ruff format --check
 
   lint:
     name: lint
@@ -37,9 +32,9 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: lint
+      - name: Run lint checks
         run: uv run ruff check
-      - name: format
+      - name: Run formatting
         run: uv run ruff format --check
 
   pyright:
