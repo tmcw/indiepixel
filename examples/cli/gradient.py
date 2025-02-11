@@ -1,5 +1,3 @@
-import datetime
-
 import pytz
 from PIL import Image as ImagePIL
 from PIL import ImageDraw
@@ -14,7 +12,6 @@ def render():
     draw = ImageDraw.Draw(im)
     draw.fontmode = "1"
     tz = pytz.timezone("America/New_York")
-    now = datetime.datetime.now(tz)
     layout = Box(
         Column(
             children=[
