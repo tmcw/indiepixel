@@ -22,7 +22,7 @@ jobs:
         run: uv run pytest
 
   lint:
-    name: lint
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
