@@ -1,6 +1,6 @@
 # Indiepixel
 
-![PyPI - Version](https://img.shields.io/pypi/v/indiepixel)
+[![PyPI - Version](https://img.shields.io/pypi/v/indiepixel)](https://pypi.org/project/indiepixel/)
 
 _Contributions more than welcome!_
 
