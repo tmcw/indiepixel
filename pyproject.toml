@@ -35,6 +35,7 @@ dev = [
     "pytest>=8.3.4",
     "pre-commit>=4.1.0",
     "pyright>=1.1.393",
+    "syrupy>=4.8.1",
 ]
 examples = ["flask>=3.1.0", "gunicorn>=23.0.0", "pytz>=2024.2"]
 

@@ -2,34 +2,48 @@ from __future__ import annotations
 
 from io import BytesIO
 
+import pytest
 from PIL import Image as ImagePIL
 from PIL import ImageDraw
+from syrupy.extensions.image import PNGImageSnapshotExtension
 
-from indiepixel import Box, Row, Text
-
-regenerate = False
-
-
-def snapshot(name: str, im: ImagePIL):
-    f = "PNG"
-    if regenerate:
-        im.save(f"tests/snapshots/{name}.png", f)
-    else:
-        img_io = BytesIO()
-        im.save(
-            img_io,
-            f,
-        )
-        img_io.seek(0)
-
-        with open(f"tests/snapshots/{name}.png", mode="rb") as f:
-            assert f.read() == img_io.getvalue()
+from indiepixel import Box, Renderable, Row, Text
 
 
-def test_clock() -> None:
-    im = ImagePIL.new("RGB", (32, 16))
-    draw = ImageDraw.Draw(im)
-    layout = Box(
+# Make syrupy save snapshots as individual png files
+@pytest.fixture
+def snapshot(snapshot):
+    return snapshot.use_extension(PNGImageSnapshotExtension)
+
+
+@pytest.fixture
+def image() -> ImagePIL.Image:
+    return ImagePIL.new("RGB", (32, 16))
+
+
+@pytest.fixture
+def image_draw(image: ImagePIL.Image) -> ImageDraw.ImageDraw:
+    return ImageDraw.ImageDraw(image)
+
+
+@pytest.fixture
+def render_widget(image, image_draw):
+    """Render a widget to PNG image data."""
+
+    def render_widget_impl(widget: Renderable) -> bytes:
+        widget.paint(image_draw, image, (0, 0, 64, 32))
+
+        buffer = BytesIO()
+        image.save(buffer, format="PNG")
+        png_bytes = buffer.getvalue()
+        buffer.close()
+        return png_bytes
+
+    return render_widget_impl
+
+
+def test_clock(snapshot, render_widget) -> None:
+    widget = Box(
         Row(
             children=[
                 Text("1:23AM", color="#fff"),
@@ -38,5 +52,4 @@ def test_clock() -> None:
         padding=2,
         background="#000",
     )
-    layout.paint(draw, im, (0, 0, 64, 32))
-    snapshot("clock", im)
+    assert render_widget(widget) == snapshot

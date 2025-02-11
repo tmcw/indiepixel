@@ -113,6 +113,7 @@ dev = [
     { name = "pytest" },
     { name = "pytz" },
     { name = "ruff" },
+    { name = "syrupy" },
 ]
 examples = [
     { name = "flask" },
@@ -135,6 +136,7 @@ dev = [
     { name = "pytest", specifier = ">=8.3.4" },
     { name = "pytz", specifier = ">=2024.2" },
     { name = "ruff", specifier = ">=0.8.2" },
+    { name = "syrupy", specifier = ">=4.8.1" },
 ]
 examples = [
     { name = "flask", specifier = ">=3.1.0" },
