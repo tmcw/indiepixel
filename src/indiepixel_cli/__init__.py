@@ -6,6 +6,8 @@ from pathlib import Path
 
 import click
 from flask import Flask, send_file
+from imgcat import imgcat
+import sixel
 
 
 def create_server(mods):
@@ -82,11 +84,30 @@ def load_from_path(filename):
         return [(str(p), import_from_path("render", p)) for p in files]
     return [(filename, import_from_path("render", filename))]
 
+def render_in_terminal(mod):
+    img_io = BytesIO()
+    rendered = mod[1].render()
+    rendered[0].save(
+        img_io,
+        "WEBP",
+        lossless=True,
+        alpha_quality=100,
+        save_all=True,
+        append_images=rendered[1:],
+        duration=100,
+    )
+    img_io.seek(0)
+    writer = sixel.SixelWriter()
+    writer.draw(img_io)
+
 
 @click.command()
 @click.argument("filename")
-def cli(filename):
+@click.option("--term/--no-term", default=False, help="Display image in the terminal")
+def cli(filename, term):
     mods = load_from_path(filename)
-    app = create_server(mods)
-    print("created app", app)
-    app.run(debug=True)
+    if term == True:
+        render_in_terminal(mods[0])
+    else:
+        app = create_server(mods)
+        app.run(debug=True)

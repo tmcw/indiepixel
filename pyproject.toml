@@ -12,7 +12,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "click>=8.1.7",
+    "imgcat>=0.6.0",
     "pillow>=11.0.0",
+    "sixel>=0.2.0",
 ]
 
 [project.scripts]

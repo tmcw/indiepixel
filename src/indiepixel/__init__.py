@@ -137,7 +137,8 @@ class Image(Renderable):
 # https://github.com/tidbyt/pixlet/blob/main/render/box.go
 class Box(Renderable):
     """A box for another widget, this can provide padding
-    and a background color if specified."""
+    and a background color if specified.
+    """
 
     def __init__(
         self,
