@@ -49,8 +49,8 @@ class Renderable(ABC):
         """Apply this widget to the canvas, calling paint and other methods."""
 
     @abstractmethod
-    def measure(self, bounds: Bounds) -> tuple[int, int]:
-        """Measure how large this widget will become."""
+    def size(self, bounds: Bounds) -> tuple[int, int]:
+        """size how large this widget will become."""
 
 
 # https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md#root
@@ -71,7 +71,7 @@ class Root(Renderable):
         self.delay = delay
         self.show_full_application = show_full_application
 
-    def measure(self, bounds: Bounds):
+    def size(self, bounds: Bounds):
         """Return the dimensions of a widget."""
         return (64, 32)
 
@@ -114,7 +114,7 @@ class Circle(Renderable):
         self.radius = diameter / 2
         self.color: Color | None = maybe_parse_color(color)
 
-    def measure(self, bounds: Bounds):
+    def size(self, bounds: Bounds):
         """Provide the dimensions of this circle, which are equal to the diameter."""
         return (self.diameter, self.diameter)
 
@@ -128,7 +128,7 @@ class Circle(Renderable):
             fill=self.color,
         )
         if self.child:
-            child_size = self.child.measure(
+            child_size = self.child.size(
                 (
                     bounds[0],
                     bounds[1],
@@ -167,7 +167,7 @@ class Rect(Renderable):
         self.height = height
         self.color: Color | None = maybe_parse_color(color)
 
-    def measure(self, bounds: Bounds):
+    def size(self, bounds: Bounds):
         """Provide the dimensions of this rectangle."""
         return (self.width, self.height)
 
@@ -194,8 +194,8 @@ class Image(Renderable):
         self.src = src
         self._image = ImagePIL.open(src)
 
-    def measure(self, bounds: Bounds):
-        """Give the measurements of the image."""
+    def size(self, bounds: Bounds):
+        """Give the sizements of the image."""
         return (self._image.width, self._image.height)
 
     def paint(
@@ -230,11 +230,11 @@ class Box(Renderable):
         self.background: Color | None = maybe_parse_color(background)
         self.expand = expand
 
-    def measure(self, bounds: Bounds):
-        """Measures its children and pads them if necessary."""
+    def size(self, bounds: Bounds):
+        """Sizes its children and pads them if necessary."""
         if self.expand:
             return (bounds[2] - bounds[0], bounds[3] - bounds[1])
-        (w, h) = self.child.measure(bounds)
+        (w, h) = self.child.size(bounds)
         return (w + (self.padding * 2) + 1, h + (self.padding * 2) + 1)
 
     def paint(
@@ -242,7 +242,7 @@ class Box(Renderable):
     ) -> None:
         """Paints children and padding."""
         if self.expand:
-            (cw, hh) = self.child.measure(bounds)
+            (cw, hh) = self.child.size(bounds)
             if self.background:
                 draw.rectangle(
                     [bounds[0], bounds[1], bounds[2], bounds[3]], fill=self.background
@@ -258,7 +258,7 @@ class Box(Renderable):
                 ),
             )
         else:
-            (w, h) = self.child.measure(bounds)
+            (w, h) = self.child.size(bounds)
             if self.background:
                 draw.rectangle(
                     [
@@ -306,8 +306,8 @@ class Text(Renderable):
         """Paints text."""
         draw.text((bounds[0], bounds[1]), self.text, font=self.font, fill=self.color)
 
-    def measure(self, bounds: Bounds):
-        """Measures text."""
+    def size(self, bounds: Bounds):
+        """Sizes text."""
         bbox = self.font.getbbox(self.text)
         return (bbox[2], bbox[3])
 
@@ -319,9 +319,9 @@ class Stack(Renderable):
         """Construct a column widget."""
         self.children = children
 
-    def measure(self, bounds: Bounds):
+    def size(self, bounds: Bounds):
         """Find is the size of the largest child."""
-        child_sizes = map(lambda c: c.measure(bounds), self.children)
+        child_sizes = map(lambda c: c.size(bounds), self.children)
 
         return (
             max(map(lambda size: size[0], child_sizes)),
@@ -343,12 +343,12 @@ class Column(Renderable):
         """Construct a column widget."""
         self.children = children
 
-    def measure(self, bounds: Bounds):
-        """Measures the items in the column."""
+    def size(self, bounds: Bounds):
+        """Sizes the items in the column."""
         width = 0
         height = 0
         for child in self.children:
-            (cw, ch) = child.measure(bounds)
+            (cw, ch) = child.size(bounds)
             width = max(cw, width)
             # NOTE: this might be an off-by-one,
             # it's pretty fuzzy right now but if
@@ -371,7 +371,7 @@ class Column(Renderable):
             #     bounds[0] + 1,
             #     top + 1
             # ], fill=(255, 0, 0, 255))
-            (cw, ch) = child.measure(bounds)
+            (cw, ch) = child.size(bounds)
             top = top + ch + 1
 
 
@@ -383,12 +383,12 @@ class Row(Renderable):
         self.children = children
         self.expand = expand
 
-    def measure(self, bounds: Bounds) -> tuple[int, int]:
-        """Measures the items in the row."""
+    def size(self, bounds: Bounds) -> tuple[int, int]:
+        """Sizes the items in the row."""
         width = 0
         height = 0
         for child in self.children:
-            (cw, ch) = child.measure(bounds)
+            (cw, ch) = child.size(bounds)
             height = max(ch, height)
             width = width + cw
         if self.expand:
@@ -400,11 +400,11 @@ class Row(Renderable):
     ) -> None:
         """Paints the items in the row."""
         if self.expand:
-            widths = [child.measure(bounds) for child in self.children]  # noqa: F841
+            widths = [child.size(bounds) for child in self.children]  # noqa: F841
             left = bounds[0]
             for child in self.children:
                 child.paint(draw, im, (left, bounds[1], bounds[2], bounds[3]))
-                (cw, ch) = child.measure(bounds)
+                (cw, ch) = child.size(bounds)
                 # TODO: these +1 increments are a code smell,
                 # and I want to know why they aren't correct'
                 left = left + cw + 1
@@ -412,7 +412,7 @@ class Row(Renderable):
             left = bounds[0]
             for child in self.children:
                 child.paint(draw, im, (left, bounds[1], bounds[2], bounds[3]))
-                (cw, ch) = child.measure(bounds)
+                (cw, ch) = child.size(bounds)
                 # TODO: these +1 increments are a code smell,
                 # and I want to know why they aren't correct'
                 left = left + cw + 1
