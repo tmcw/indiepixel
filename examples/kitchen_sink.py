@@ -1,3 +1,6 @@
+"""Interactive kitchen sink example."""
+
+# ruff: noqa: D103
 from io import BytesIO
 from pathlib import Path
 

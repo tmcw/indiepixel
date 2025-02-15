@@ -1,3 +1,5 @@
+"""Render a clock."""
+
 import datetime
 
 import pytz
@@ -9,6 +11,7 @@ from indiepixel import Box, Row, Text
 
 
 def render():
+    """Render a clock."""
     frames = []
     im = ImagePIL.new("RGB", (64, 32))
     draw = ImageDraw.Draw(im)

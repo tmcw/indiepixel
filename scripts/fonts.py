@@ -1,3 +1,6 @@
+"""Bdf font parsing."""
+#
+# ruff: noqa: D103
 #
 # The Python Imaging Library
 # $Id$
@@ -8,7 +11,6 @@
 # 1997-08-25 fl   created
 # 2002-03-10 fl   use "from PIL import"
 #
-
 
 import glob
 import sys

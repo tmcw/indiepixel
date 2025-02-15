@@ -1,3 +1,6 @@
+"""Tests for widgets."""
+
+# ruff: noqa: D103
 from __future__ import annotations
 
 from io import BytesIO

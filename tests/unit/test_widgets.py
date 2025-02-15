@@ -1,5 +1,8 @@
+"""Tests for widgets."""
+
 from __future__ import annotations
 
+# ruff: noqa: D103
 from indiepixel import Box, Rect, Root, Text
 
 
