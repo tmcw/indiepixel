@@ -1,3 +1,5 @@
+"""CLI that runs an interactive server for indiepixel."""
+
 import os
 import sys
 from importlib.util import module_from_spec, spec_from_file_location
@@ -9,10 +11,12 @@ from flask import Flask, send_file
 
 
 def create_server(mods):
+    """Produce a server that will display the widgets listed by mods."""
     app = Flask(__name__)
 
     @app.route("/")
     def root() -> str:
+        """Display a list of the available widgets."""
         image_list = []
         for mod in mods:
             image_list.append(
@@ -42,6 +46,7 @@ def create_server(mods):
 
     @app.route("/image/<path:subpath>.webp")
     def image(subpath):
+        """Display an image."""
         img_io = BytesIO()
         mod = [x for x in mods if x[0] == subpath]
         if len(mod) == 0:
@@ -77,6 +82,7 @@ def import_from_path(module_name, file_path):
 
 
 def load_from_path(filename):
+    """Find all python files in a path if it's a directory."""
     if os.path.isdir(filename):
         files = Path(filename).glob("*.py")
         return [(str(p), import_from_path("render", p)) for p in files]
@@ -86,6 +92,7 @@ def load_from_path(filename):
 @click.command()
 @click.argument("filename")
 def cli(filename):
+    """Run indiepixel in a CLI."""
     mods = load_from_path(filename)
     app = create_server(mods)
     print("created app", app)

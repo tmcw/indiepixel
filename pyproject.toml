@@ -49,7 +49,7 @@ ignore = [
     "ANN",    # let type checker handle annotation checks
     "ARG002", # allow unused arguments
     "COM",    # let formatter take care commas
-    "D",      # don't require docstrings
+    # "D",      # don't require docstrings
     "E501",   # leave line-length enforcement to formatter
     "ERA001", # allow commented-out code
     "FIX",    # allow "FIX" comments in code

@@ -1,3 +1,5 @@
+"""Render a bunch of stuff."""
+
 from pathlib import Path
 
 from PIL import Image as ImagePIL
@@ -8,6 +10,7 @@ from indiepixel import Box, Column, Image, Rect, Row, Text
 
 
 def render():
+    """Render a bunch of stuff."""
     frames = []
     im = ImagePIL.new("RGB", (64, 32))
     draw = ImageDraw.Draw(im)
