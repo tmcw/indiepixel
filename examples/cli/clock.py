@@ -21,7 +21,7 @@ def render():
     layout = Box(
         Row(
             children=[
-                Text(now.strftime("%I:%M"), color="#fff"),
+                Text(content=now.strftime("%I:%M"), color="#fff"),
             ]
         ),
         padding=2,

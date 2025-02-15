@@ -37,7 +37,12 @@ def render():
                         Rect(width=4, height=4, color="#00f"),
                     ]
                 ),
-                Row([Text("6x10", font="6x10"), Text("hello", font="tom-thumb")]),
+                Row(
+                    [
+                        Text(content="6x10", font="6x10"),
+                        Text(content="hello", font="tom-thumb"),
+                    ]
+                ),
                 Row(
                     [
                         Rect(
@@ -47,9 +52,9 @@ def render():
                         ),
                         Rect(width=3, height=3, color="#234"),
                         Rect(width=4, height=4, color="#f00"),
-                        Text("hi"),
+                        Text(content="hi"),
                         Rect(width=2, height=2, color="#0f0"),
-                        Text("hi"),
+                        Text(content="hi"),
                         Rect(width=2, height=2, color="#f00"),
                     ]
                 ),
@@ -79,7 +84,7 @@ def render():
     # layout = Box(
     #        Row([
     #            Box(
-    #                Text("xyz", color = (255, 255, 255, 255)),
+    #                Text(content="xyz", color = (255, 255, 255, 255)),
     #                padding=2,
     #                background=(10, 10, 10, 255)
     #            ),
@@ -87,11 +92,11 @@ def render():
     #                # Box(
     #                #     Row([
     #                #         Box(
-    #                #             Text("yea", color = (255, 0, 0, 255)),
+    #                #             Text(content="yea", color = (255, 0, 0, 255)),
     #                #             padding=1
     #                #         )# ,
     #                #         # Box(
-    #                #         #     Text("xxx", color = (10, 100, 0, 255)#),
+    #                #         #     Text(content="xxx", color = (10, 100, 0, 255)#),
     #                #         #     padding=0, background=(200, 255, #255, # 255# )
     #                #         # )
     #                #     ],
@@ -131,11 +136,11 @@ def render():
     #     Stack([
     #         Row([
     #             Box(
-    #                 Text("yea", color = (255, 0, 0, 255)),
+    #                 Text(content="yea", color = (255, 0, 0, 255)),
     #                 padding=2
     #             ),
     #             Box(
-    #                 Text("xxx", color = (10, 100, 0, 255)),
+    #                 Text(content="xxx", color = (10, 100, 0, 255)),
     #                 padding=2, background=(200, 255, 255, 255)
     #             )
     #         ]),

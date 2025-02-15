@@ -19,7 +19,7 @@ def render():
     layout = Stack(
         children=[
             Rect(width=50, height=25, color="#911"),
-            Text("hello there"),
+            Text(content="hello there"),
             Rect(width=4, height=32, color="#119"),
         ],
     )

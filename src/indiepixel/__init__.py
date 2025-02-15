@@ -50,7 +50,7 @@ class Renderable(ABC):
 
     @abstractmethod
     def size(self, bounds: Bounds) -> tuple[int, int]:
-        """size how large this widget will become."""
+        """Size how large this widget will become."""
 
 
 # https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md#root
@@ -290,13 +290,13 @@ class Text(Renderable):
 
     def __init__(
         self,
-        text: str,
         *,
+        content: str,
         color: InputColor = "#fff",
         font: str = "tb-8",
     ) -> None:
         """Construct a text widget."""
-        self.text = text
+        self.content = content
         self.color: Color = ImageColor.getrgb(color)
         self.font = fonts[font]
 
@@ -304,11 +304,11 @@ class Text(Renderable):
         self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
     ) -> None:
         """Paints text."""
-        draw.text((bounds[0], bounds[1]), self.text, font=self.font, fill=self.color)
+        draw.text((bounds[0], bounds[1]), self.content, font=self.font, fill=self.color)
 
     def size(self, bounds: Bounds):
         """Sizes text."""
-        bbox = self.font.getbbox(self.text)
+        bbox = self.font.getbbox(self.content)
         return (bbox[2], bbox[3])
 
 

@@ -49,7 +49,7 @@ def test_clock(snapshot, render_widget) -> None:
     widget = Box(
         Row(
             children=[
-                Text("1:23AM", color="#fff"),
+                Text(content="1:23AM", color="#fff"),
             ]
         ),
         padding=2,
