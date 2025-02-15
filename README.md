@@ -44,7 +44,7 @@ uv run pre-commit install
 To run `examples/kitchen_sink.py`:
 
 ```
-uv run examples/kitchen_sink.py
+uv run indiepixel examples/cli/gradient.py
 ```
 
 ### Running tests
