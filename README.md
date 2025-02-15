@@ -76,14 +76,18 @@ This needs you to build before publishing:
 
 ## Status
 
+_* = currently not tidbyt-compatible_
+
 - [x] WebP generation
 - [x] Rendering the tb-8 pixel font without anti-aliasing
 - Components
   - [x] Text
-  - [x] Box
-  - [x] Rect
-  - [x] Column
+  - [x] Box*
+  - [x] Rect*
+  - [x] Column*
   - [x] Row
+  - [x] Stack
+  - [x] Circle
   - [ ] Animation
   - [x] Image
     - [ ] Resizing

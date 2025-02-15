@@ -22,17 +22,17 @@ def render():
                 Row(
                     [
                         Image(src=str(Path("./examples/pixel-16x16.png").resolve())),
-                        Rect(width=4, height=4, background="purple"),
-                        Rect(width=4, height=4, background="orange"),
-                        Rect(width=4, height=4, background="blue"),
+                        Rect(width=4, height=4, color="purple"),
+                        Rect(width=4, height=4, color="orange"),
+                        Rect(width=4, height=4, color="blue"),
                     ],
                     expand=True,
                 ),
                 Row(
                     [
-                        Rect(width=2, height=2, background="red"),
-                        Rect(width=3, height=3, background="gray"),
-                        Rect(width=4, height=4, background="#00f"),
+                        Rect(width=2, height=2, color="red"),
+                        Rect(width=3, height=3, color="gray"),
+                        Rect(width=4, height=4, color="#00f"),
                     ]
                 ),
                 Row([Text("6x10", font="6x10"), Text("hello", font="tom-thumb")]),
@@ -41,14 +41,14 @@ def render():
                         Rect(
                             width=2,
                             height=2,
-                            background="#f22",
+                            color="#f22",
                         ),
-                        Rect(width=3, height=3, background="#234"),
-                        Rect(width=4, height=4, background="#f00"),
+                        Rect(width=3, height=3, color="#234"),
+                        Rect(width=4, height=4, color="#f00"),
                         Text("hi"),
-                        Rect(width=2, height=2, background="#0f0"),
+                        Rect(width=2, height=2, color="#0f0"),
                         Text("hi"),
-                        Rect(width=2, height=2, background="#f00"),
+                        Rect(width=2, height=2, color="#f00"),
                     ]
                 ),
                 # Box(
