@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-indiepixel = "indiepixel_cli:cli"
+indiepixel = "indiepixel.cli:cli"
 
 [project.urls]
 Homepage = "https://github.com/tmcw/indiepixel"
