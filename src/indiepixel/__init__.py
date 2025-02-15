@@ -312,6 +312,41 @@ class Text(Renderable):
         return (bbox[2], bbox[3])
 
 
+class WrappedText(Renderable):
+    """Text rendered on the canvas.
+
+    This is single-line text
+    only for now.
+    """
+
+    def __init__(
+        self,
+        *,
+        content: str,
+        width: int | None,
+        color: InputColor = "#fff",
+        font: str = "tb-8",
+    ) -> None:
+        """Construct a text widget."""
+        self.content = content
+        self.color: Color = ImageColor.getrgb(color)
+        self.font = fonts[font]
+        self.width = width
+
+    def size(self, bounds: Bounds):
+        """Sizes wrapped text."""
+        bbox = self.font.getbbox(self.content)
+        return (bbox[2], bbox[3])
+
+    def paint(
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+    ) -> None:
+        """Paints text."""
+        draw.multiline_text(
+            (bounds[0], bounds[1]), self.content, font=self.font, fill=self.color
+        )
+
+
 class Stack(Renderable):
     """Renders each of its children on top of each other."""
 
