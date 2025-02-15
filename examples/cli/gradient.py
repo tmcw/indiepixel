@@ -17,13 +17,12 @@ def render():
             children=[
                 Row(
                     children=[
-                        Rect(height=16, width=1, background=(0, 0, i * 4))
-                        for i in range(64)
+                        Rect(height=16, width=1, color=(0, 0, i * 4)) for i in range(64)
                     ]
                 ),
                 Row(
                     children=[
-                        Rect(height=16, width=1, background=(255 - (i * 4), 0, i * 4))
+                        Rect(height=16, width=1, color=(255 - (i * 4), 0, i * 4))
                         for i in range(64)
                     ]
                 ),

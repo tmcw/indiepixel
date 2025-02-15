@@ -7,7 +7,7 @@ from indiepixel import Box, Rect, Root, Text
 
 
 def test_rect() -> None:
-    r = Rect(width=10, height=10, background="#f00")
+    r = Rect(width=10, height=10, color="#f00")
     assert r.measure((0, 0, 100, 100)) == (10, 10)
 
 
@@ -25,5 +25,5 @@ def test_box() -> None:
 
 
 def test_root() -> None:
-    r = Root(child=Rect(width=10, height=10, background="#000"))
+    r = Root(child=Rect(width=10, height=10, color="#000"))
     assert r.measure((0, 0, 64, 32)) == (64, 32)

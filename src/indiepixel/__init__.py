@@ -93,6 +93,65 @@ class Root(Renderable):
 
 
 # https://github.com/tidbyt/pixlet/blob/main/render/box.go
+class Circle(Renderable):
+    """A solid-colored circle."""
+
+    def __init__(
+        self,
+        *,
+        diameter: int = 10,
+        color: InputColor = None,
+        child: Renderable | None = None,
+    ) -> None:
+        """Construct a circle widget.
+
+        If given a child, it will render that child in the center,
+        with some caveats! If the child is larger than the circle itself,
+        rendering can get odd.
+        """
+        self.child = child
+        self.diameter = diameter
+        self.radius = diameter / 2
+        self.color: Color | None = maybe_parse_color(color)
+
+    def measure(self, bounds: Bounds):
+        """Provide the dimensions of this circle, which are equal to the diameter."""
+        return (self.diameter, self.diameter)
+
+    def paint(
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+    ) -> None:
+        """Paints a circle."""
+        draw.circle(
+            xy=[bounds[0] + self.radius, bounds[1] + self.radius],
+            radius=self.radius,
+            fill=self.color,
+        )
+        if self.child:
+            child_size = self.child.measure(
+                (
+                    bounds[0],
+                    bounds[1],
+                    bounds[0] + self.diameter,
+                    bounds[1] + self.diameter,
+                )
+            )
+            # offset the child box inside of this box
+            pad_x = round((self.diameter - child_size[0]) / 2)
+            pad_y = round((self.diameter - child_size[1]) / 2)
+            self.child.paint(
+                draw,
+                im,
+                (
+                    bounds[0] + pad_x,
+                    bounds[1] + pad_y,
+                    bounds[0] + self.diameter - pad_y,
+                    bounds[1] + self.diameter - pad_x,
+                ),
+            )
+
+
+# https://github.com/tidbyt/pixlet/blob/main/render/box.go
 class Rect(Renderable):
     """A solid-colored rectangle."""
 
@@ -101,12 +160,12 @@ class Rect(Renderable):
         *,
         width: int = 10,
         height: int = 10,
-        background: InputColor = None,
+        color: InputColor = None,
     ) -> None:
         """Construct a rect widget."""
         self.width = width
         self.height = height
-        self.background: Color | None = maybe_parse_color(background)
+        self.color: Color | None = maybe_parse_color(color)
 
     def measure(self, bounds: Bounds):
         """Provide the dimensions of this rectangle."""
@@ -118,7 +177,7 @@ class Rect(Renderable):
         """Paints a rectangle."""
         draw.rectangle(
             [bounds[0], bounds[1], bounds[0] + self.width, bounds[1] + self.height],
-            fill=self.background,
+            fill=self.color,
         )
 
 
@@ -251,6 +310,30 @@ class Text(Renderable):
         """Measures text."""
         bbox = self.font.getbbox(self.text)
         return (bbox[2], bbox[3])
+
+
+class Stack(Renderable):
+    """Renders each of its children on top of each other."""
+
+    def __init__(self, children: list[Renderable]) -> None:
+        """Construct a column widget."""
+        self.children = children
+
+    def measure(self, bounds: Bounds):
+        """Find is the size of the largest child."""
+        child_sizes = map(lambda c: c.measure(bounds), self.children)
+
+        return (
+            max(map(lambda size: size[0], child_sizes)),
+            max(map(lambda size: size[1], child_sizes)),
+        )
+
+    def paint(
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+    ) -> None:
+        """Paints all the items on top of each other."""
+        for child in self.children:
+            child.paint(draw, im, (bounds))
 
 
 class Column(Renderable):
