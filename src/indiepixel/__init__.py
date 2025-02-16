@@ -345,6 +345,7 @@ class WrappedText(Renderable):
         self.align = align
 
     def available_width(self, bounds: Bounds):
+        """Calculate the width from either the provided or inferred bbox."""
         return bounds[2] - bounds[0] if self.width is None else self.width
 
     def wrap_text(self, bounds: Bounds):
