@@ -49,7 +49,7 @@ ignore = [
     "ANN",    # let type checker handle annotation checks
     "ARG002", # allow unused arguments
     "COM",    # let formatter take care commas
-    # "D",      # don't require docstrings
+    # "D",    # don't require docstrings
     "E501",   # leave line-length enforcement to formatter
     "ERA001", # allow commented-out code
     "FIX",    # allow "FIX" comments in code
@@ -57,12 +57,15 @@ ignore = [
     "PTH",    # don't require using pathlib instead of os
     "TD",     # allow TODO comments to be whatever we want
     "TRY003",
+    "D203",
+    "D212",
     "TRY002",
     "PERF401",
     "C417",
     "INP001",
     "EM101",
-    "T201"
+    "T201",
+    "PLR0913" # Let me use a lot of arguments
 ]
 
 [tool.ruff.lint.per-file-ignores]

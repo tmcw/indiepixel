@@ -35,7 +35,12 @@ def render():
                         Rect(width=4, height=4, color="#00f"),
                     ]
                 ),
-                Row([Text(content="6x10", font="6x10"), Text(content="hello", font="tom-thumb")]),
+                Row(
+                    [
+                        Text(content="6x10", font="6x10"),
+                        Text(content="hello", font="tom-thumb"),
+                    ]
+                ),
                 Row(
                     [
                         Rect(

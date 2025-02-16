@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Literal
 
 from PIL import Image as ImagePIL
 from PIL import ImageColor, ImageDraw, ImageFont
@@ -310,6 +311,96 @@ class Text(Renderable):
         """Sizes text."""
         bbox = self.font.getbbox(self.content)
         return (bbox[2], bbox[3])
+
+
+type WrappedTextAlign = Literal["left", "right", "center"]
+
+
+class WrappedText(Renderable):
+    """Text rendered on the canvas.
+
+    https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md#wrappedtext
+    This is single-line text
+    only for now.
+    """
+
+    def __init__(
+        self,
+        *,
+        content: str,
+        width: int | None = None,
+        height: int | None = None,
+        linespacing: int = 0,
+        color: InputColor = "#fff",
+        font: str = "tb-8",
+        align: WrappedTextAlign = "left",
+    ) -> None:
+        """Construct a text widget."""
+        self.content = content
+        self.color: Color = ImageColor.getrgb(color)
+        self.font = fonts[font]
+        self.width = width
+        self.height = height
+        self.linespacing = linespacing
+        self.align = align
+
+    def available_width(self, bounds: Bounds):
+        """Calculate the width from either the provided or inferred bbox."""
+        return bounds[2] - bounds[0] if self.width is None else self.width
+
+    def wrap_text(self, bounds: Bounds):
+        """Split lines in a very naive way."""
+        w = self.available_width(bounds)
+        # split with no arguments splits on whitespace
+        words = self.content.split()
+        first_word = words[0]
+        words = words[1:]
+        words_with_lengths = [(word, self.font.getlength(word)) for word in words]
+        space_width_px = self.font.getlength(" ")
+        output_line = first_word
+        output = ""
+        for word, word_width_px in words_with_lengths:
+            output_line_width_px = self.font.getlength(output_line)
+            width_after = output_line_width_px + word_width_px + space_width_px
+            if width_after > w:
+                output = output_line if output == "" else f"{output}\n{output_line}"
+                output_line = word
+            else:
+                output_line = f"{output_line} {word}"
+        return f"{output}\n{output_line}"
+
+    def size(self, bounds: Bounds):
+        """Sizes wrapped text."""
+        wrapped = self.wrap_text(bounds)
+        bbox = self.font.getbbox(wrapped)
+        return (bounds[2] - bounds[0], bbox[3])
+
+    def multiline_width(self, wrapped: str):
+        """Get the width of a multi-line string in pixels."""
+        return max([self.font.getlength(line) for line in wrapped.split("\n")])
+
+    def paint(
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+    ) -> None:
+        """Paints text."""
+        wrapped = self.wrap_text(bounds)
+        text_width = self.multiline_width(wrapped)
+        w = self.available_width(bounds)
+        left_anchor = bounds[0]
+        if text_width < w:
+            match self.align:
+                case "right":
+                    left_anchor += w - text_width
+                case "center":
+                    left_anchor += (w - text_width) / 2
+        draw.multiline_text(
+            (left_anchor, bounds[1]),
+            wrapped,
+            font=self.font,
+            fill=self.color,
+            align=self.align,
+            spacing=self.linespacing,
+        )
 
 
 class Stack(Renderable):
