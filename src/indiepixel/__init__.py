@@ -93,6 +93,53 @@ class Root(Renderable):
         )
 
 
+class PieChart(Renderable):
+    """A pie chart visualization."""
+
+    def __init__(
+        self,
+        *,
+        diameter: int = 10,
+        colors: list[InputColor],
+        weights: list[float],
+    ) -> None:
+        """
+        Construct a pie chart widget.
+
+        Should be given a list of weights, which can be any numbers. Those
+        will be normalized into slices out of the whole pie. And a list of
+        colors, which should have the same length as the weights.
+        """
+        total_weight = sum(weights)
+        if len(weights) != len(colors):
+            raise Exception("Weights must have the same length as colors")
+        self.weights = [360 * (weight / total_weight) for weight in weights]
+        self.diameter = diameter
+        self.colors = [maybe_parse_color(color) for color in colors]
+        self.slices = zip(self.weights, self.colors, strict=True)
+
+    def size(self, bounds: Bounds):
+        """Provide the dimensions of this circle, which are equal to the diameter."""
+        return (self.diameter, self.diameter)
+
+    def paint(
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+    ) -> None:
+        """Paints a circle."""
+        start = 0
+        for weight, color in self.slices:
+            draw.pieslice(
+                xy=[
+                    (bounds[0], bounds[1]),
+                    (bounds[0] + self.diameter, bounds[1] + self.diameter),
+                ],
+                start=start,
+                end=start + weight,
+                fill=color,
+            )
+            start += weight
+
+
 # https://github.com/tidbyt/pixlet/blob/main/render/box.go
 class Circle(Renderable):
     """A solid-colored circle."""
@@ -104,7 +151,8 @@ class Circle(Renderable):
         color: InputColor = None,
         child: Renderable | None = None,
     ) -> None:
-        """Construct a circle widget.
+        """
+        Construct a circle widget.
 
         If given a child, it will render that child in the center,
         with some caveats! If the child is larger than the circle itself,
