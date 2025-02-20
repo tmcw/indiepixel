@@ -80,6 +80,7 @@ _* = currently not tidbyt-compatible_
 
 - [x] WebP generation
 - [x] Rendering the tb-8 pixel font without anti-aliasing
+- [x] Fonts
 - Components
   - [x] Text
   - [x] Box*
@@ -88,12 +89,11 @@ _* = currently not tidbyt-compatible_
   - [x] Row
   - [x] Stack
   - [x] Circle
-  - [ ] Animation
+  - [x] PieChart
   - [x] Image
+  - [x] WrappedText
     - [ ] Resizing
     - [ ] Animation
-  - [ ] PieChart
+  - [ ] Animation
   - [ ] Plot
   - [ ] 'expand' option
-  - [ ] WrappedText
-- [x] Fonts
