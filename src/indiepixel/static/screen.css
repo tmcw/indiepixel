@@ -1,0 +1,66 @@
+body {
+  background: #000;
+  color: #fff;
+  font-family: sans-serif;
+  font-size: 16px;
+}
+
+header {
+  padding: 10px;
+  line-height: 0;
+}
+
+header h1 {
+  margin: 0;
+  padding: 0;
+}
+
+header h1 a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 16px;
+  font-weight: normal;
+}
+
+header h1 a:hover {
+  color: yellow;
+}
+
+main {
+  padding: 10px;
+  margin: 0 auto;
+  max-width: 642px;
+}
+
+section {
+  border: 1px solid #fff;
+  margin-bottom: 40px;
+  line-height: 0;
+}
+
+section h2 {
+  margin: 0;
+  font-size: 16px;
+  padding: 20px 10px;
+  background: #fff;
+  color: #000;
+}
+
+section h2 a {
+  color: #000;
+  text-decoration: none;
+}
+
+section h2 a:hover {
+  color: magenta;
+  text-decoration: underline;
+}
+
+section img {
+  image-rendering: pixelated;
+  width: 100%;
+  mask-size: contain;
+  -webkit-mask-size: contain;
+  mask-image: url(/static/mask.png);
+  -webkit-mask-image: url(/static/mask.png);
+}

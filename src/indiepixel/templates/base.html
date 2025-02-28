@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Indiepixel</title>
+  <meta name="theme-color" content="#000">
+  <link rel="stylesheet" href="{{ url_for('static', filename='screen.css') }}">
+</head>
+  <header>
+    <h1>
+      <a href='/'>
+        Indiepixel
+      </a>
+    </h1>
+  </header>
+<main>
+  {% block main %}{% endblock %}
+</main>
+</html>

@@ -7,7 +7,7 @@ from io import BytesIO
 from pathlib import Path
 
 import click
-from flask import Flask, send_file
+from flask import Flask, render_template, send_file
 
 
 def create_server(mods):
@@ -16,33 +16,14 @@ def create_server(mods):
 
     @app.route("/")
     def root() -> str:
-        """Display a list of the available widgets."""
-        image_list = []
-        for mod in mods:
-            image_list.append(
-                f"""
-                <div>
-                <h3>{mod[0]}</h3>
-                <img style='image-rendering:pixelated;height:320px;width:640px;'  src='./image/{mod[0]}.webp' />
-                </div>
-                """
-            )
-        return f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-            <link rel="stylesheet" href="https://unpkg.com/missing.css@1.1.3">
-            </head>
-            <main>
-            <h1>
-            Indiepixel
-            </h1>
-            <p>
-            {"\n".join(image_list)}
-            </p>
-            </main>
-            </html>
-            """
+        return render_template("index.html", widgets=mods)
+
+    @app.route("/widget/<path:subpath>")
+    def widget(subpath) -> str:
+        widget = next((w for w in mods if w[0] == subpath), None)
+        if widget is None:
+            return render_template("not_found.html")
+        return render_template("widget.html", widget=widget)
 
     @app.route("/image/<path:subpath>.webp")
     def image(subpath):

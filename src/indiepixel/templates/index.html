@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block main %}
+  {% for widget in widgets %}
+    <section>
+      <h2>
+        <a href='/widget/{{ widget[0] }}'>
+          {{ widget[0] }}
+        </a>
+      </h2>
+      <img src='./image/{{ widget[0] }}.webp' />
+    </section>
+  {% endfor %}
+{% endblock %}
