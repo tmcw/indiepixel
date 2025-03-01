@@ -7,6 +7,7 @@ from typing import Literal
 from PIL import Image as ImagePIL
 from PIL import ImageColor, ImageDraw, ImageFont
 
+type Size = tuple[int, int]
 type Bounds = tuple[int, int, int, int]
 type Color = tuple[int, int, int] | tuple[int, int, int, int]
 type InputColor = str | tuple[int, int, int] | None
@@ -28,7 +29,8 @@ initialize_fonts()
 
 
 def maybe_parse_color(color: InputColor):
-    """Parse colors.
+    """
+    Parse colors.
 
     Parse either a CSS-style color string, a (r, g, b) tuple,
     or None (transparent) into a color usable in indiepixel.
@@ -46,12 +48,18 @@ class Renderable(ABC):
     """The base class for other widgets."""
 
     @abstractmethod
-    def paint(self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds):
+    def paint(
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
+    ):
         """Apply this widget to the canvas, calling paint and other methods."""
 
     @abstractmethod
-    def size(self, bounds: Bounds) -> tuple[int, int]:
+    def size(self, bounds: Bounds) -> Size:
         """Size how large this widget will become."""
+
+    @abstractmethod
+    def frame_count(self) -> int:
+        """How many frames this widget produces."""
 
 
 # https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md#root
@@ -77,7 +85,7 @@ class Root(Renderable):
         return (64, 32)
 
     def paint(
-        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Paints its child."""
         self.child.paint(
@@ -90,6 +98,7 @@ class Root(Renderable):
                 64,
                 32,
             ),
+            frame,
         )
 
 
@@ -118,12 +127,16 @@ class PieChart(Renderable):
         self.colors = [maybe_parse_color(color) for color in colors]
         self.slices = zip(self.weights, self.colors, strict=True)
 
+    def frame_count(self) -> int:
+        """How many frames this widget produces."""
+        return 1
+
     def size(self, bounds: Bounds):
         """Provide the dimensions of this circle, which are equal to the diameter."""
         return (self.diameter, self.diameter)
 
     def paint(
-        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Paints a circle."""
         start = 0
@@ -167,8 +180,12 @@ class Circle(Renderable):
         """Provide the dimensions of this circle, which are equal to the diameter."""
         return (self.diameter, self.diameter)
 
+    def frame_count(self) -> int:
+        """How many frames this widget produces."""
+        return 1
+
     def paint(
-        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Paints a circle."""
         draw.circle(
@@ -197,7 +214,44 @@ class Circle(Renderable):
                     bounds[0] + self.diameter - pad_y,
                     bounds[1] + self.diameter - pad_x,
                 ),
+                frame,
             )
+
+
+def expand(size: Size, other: Size) -> Size:
+    """Combine two sizes into a maximum size in both dimensions."""
+    return (max(size[0], other[0]), max(size[1], other[1]))
+
+
+class Animation(Renderable):
+    """Animations turns a list of children into an animation, where each child is a frame.."""
+
+    def __init__(
+        self,
+        *,
+        children: list[Renderable],
+    ) -> None:
+        """Construct an animation widget."""
+        self.children = children
+
+    def size(self, bounds: Bounds):
+        """Provide the dimensions of this rectangle."""
+        size = (0, 0)
+        for child in self.children:
+            size = expand(size, child.size(bounds))
+        return size
+
+    def frame_count(self):
+        """Calculate the number of frames which is the number of children."""
+        return len(self.children)
+
+    def paint(
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
+    ) -> None:
+        """Paints a rectangle."""
+        print(f"Rendering frame {frame}")
+        print(self.children)
+        self.children[frame].paint(draw, im, bounds, frame)
 
 
 # https://github.com/tidbyt/pixlet/blob/main/render/box.go
@@ -220,8 +274,12 @@ class Rect(Renderable):
         """Provide the dimensions of this rectangle."""
         return (self.width, self.height)
 
+    def frame_count(self) -> int:
+        """How many frames this widget produces."""
+        return 1
+
     def paint(
-        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Paints a rectangle."""
         draw.rectangle(
@@ -247,8 +305,12 @@ class Image(Renderable):
         """Give the sizements of the image."""
         return (self._image.width, self._image.height)
 
+    def frame_count(self) -> int:
+        """How many frames this widget produces."""
+        return 1
+
     def paint(
-        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Pastes an image onto the canvas."""
         im.paste(
@@ -259,7 +321,8 @@ class Image(Renderable):
 
 # https://github.com/tidbyt/pixlet/blob/main/render/box.go
 class Box(Renderable):
-    """A box for another widget.
+    """
+    A box for another widget.
 
     This can provide padding
     and a background color if specified.
@@ -286,8 +349,12 @@ class Box(Renderable):
         (w, h) = self.child.size(bounds)
         return (w + (self.padding * 2) + 1, h + (self.padding * 2) + 1)
 
+    def frame_count(self) -> int:
+        """How many frames this widget produces."""
+        return self.child.frame_count()
+
     def paint(
-        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Paints children and padding."""
         if self.expand:
@@ -305,6 +372,7 @@ class Box(Renderable):
                     bounds[2] - self.padding,
                     bounds[3] - self.padding,
                 ),
+                frame,
             )
         else:
             (w, h) = self.child.size(bounds)
@@ -327,11 +395,13 @@ class Box(Renderable):
                     bounds[2] - self.padding,
                     bounds[3] - self.padding,
                 ),
+                frame,
             )
 
 
 class Text(Renderable):
-    """Text rendered on the canvas.
+    """
+    Text rendered on the canvas.
 
     This is single-line text
     only for now.
@@ -350,10 +420,14 @@ class Text(Renderable):
         self.font = fonts[font]
 
     def paint(
-        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Paints text."""
         draw.text((bounds[0], bounds[1]), self.content, font=self.font, fill=self.color)
+
+    def frame_count(self) -> int:
+        """How many frames this widget produces."""
+        return 1
 
     def size(self, bounds: Bounds):
         """Sizes text."""
@@ -365,7 +439,8 @@ type WrappedTextAlign = Literal["left", "right", "center"]
 
 
 class WrappedText(Renderable):
-    """Text rendered on the canvas.
+    """
+    Text rendered on the canvas.
 
     https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md#wrappedtext
     This is single-line text
@@ -395,6 +470,10 @@ class WrappedText(Renderable):
     def available_width(self, bounds: Bounds):
         """Calculate the width from either the provided or inferred bbox."""
         return bounds[2] - bounds[0] if self.width is None else self.width
+
+    def frame_count(self) -> int:
+        """How many frames this widget produces."""
+        return 1
 
     def wrap_text(self, bounds: Bounds):
         """Split lines in a very naive way."""
@@ -428,7 +507,7 @@ class WrappedText(Renderable):
         return max([self.font.getlength(line) for line in wrapped.split("\n")])
 
     def paint(
-        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Paints text."""
         wrapped = self.wrap_text(bounds)
@@ -467,12 +546,16 @@ class Stack(Renderable):
             max(map(lambda size: size[1], child_sizes)),
         )
 
+    def frame_count(self) -> int:
+        """How many frames this widget produces."""
+        return max([child.frame_count() for child in self.children])
+
     def paint(
-        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Paints all the items on top of each other."""
         for child in self.children:
-            child.paint(draw, im, (bounds))
+            child.paint(draw, im, (bounds), frame)
 
 
 class Column(Renderable):
@@ -496,13 +579,17 @@ class Column(Renderable):
             height = height + ch + 1
         return (width, height)
 
+    def frame_count(self) -> int:
+        """How many frames this widget produces."""
+        return max([child.frame_count() for child in self.children])
+
     def paint(
-        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Paints the items in the column."""
         top = bounds[1]
         for child in self.children:
-            child.paint(draw, im, (bounds[0], top, bounds[2], bounds[3]))
+            child.paint(draw, im, (bounds[0], top, bounds[2], bounds[3]), frame)
             # Debug
             # draw.rectangle([
             #     bounds[0],
@@ -534,15 +621,19 @@ class Row(Renderable):
             return (bounds[2] - bounds[0], height)
         return (width, height)
 
+    def frame_count(self) -> int:
+        """How many frames this widget produces."""
+        return max([child.frame_count() for child in self.children])
+
     def paint(
-        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Paints the items in the row."""
         if self.expand:
             widths = [child.size(bounds) for child in self.children]  # noqa: F841
             left = bounds[0]
             for child in self.children:
-                child.paint(draw, im, (left, bounds[1], bounds[2], bounds[3]))
+                child.paint(draw, im, (left, bounds[1], bounds[2], bounds[3]), frame)
                 (cw, ch) = child.size(bounds)
                 # TODO: these +1 increments are a code smell,
                 # and I want to know why they aren't correct'
@@ -550,8 +641,24 @@ class Row(Renderable):
         else:
             left = bounds[0]
             for child in self.children:
-                child.paint(draw, im, (left, bounds[1], bounds[2], bounds[3]))
+                child.paint(draw, im, (left, bounds[1], bounds[2], bounds[3]), frame)
                 (cw, ch) = child.size(bounds)
                 # TODO: these +1 increments are a code smell,
                 # and I want to know why they aren't correct'
                 left = left + cw + 1
+
+
+def render(widget: Renderable) -> list[ImagePIL.Image]:
+    """Render an animated widget."""
+    frames: list[ImagePIL.Image] = []
+
+    frame_count = widget.frame_count()
+
+    for frame in range(frame_count):
+        im = ImagePIL.new("RGB", (64, 32))
+        draw = ImageDraw.Draw(im)
+        draw.fontmode = "1"
+        widget.paint(draw, im, (0, 0, 64, 32), frame)
+        frames.append(im)
+
+    return frames
