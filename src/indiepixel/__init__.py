@@ -84,6 +84,10 @@ class Root(Renderable):
         """Return the dimensions of a widget."""
         return (64, 32)
 
+    def frame_count(self):
+        """Calculate frames as childs frames."""
+        return self.child.frame_count()
+
     def paint(
         self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
