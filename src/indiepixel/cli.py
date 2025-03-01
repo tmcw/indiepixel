@@ -9,6 +9,8 @@ from pathlib import Path
 import click
 from flask import Flask, render_template, send_file
 
+from indiepixel import render
+
 
 def create_server(mods):
     """Produce a server that will display the widgets listed by mods."""
@@ -28,21 +30,23 @@ def create_server(mods):
     @app.route("/image/<path:subpath>.webp")
     def image(subpath):
         """Display an image."""
-        img_io = BytesIO()
         mod = [x for x in mods if x[0] == subpath]
         if len(mod) == 0:
             return f"Image not found, available modules are {map(lambda m: m[0], mods)}"
-        rendered = mod[0][1].render()
+        frames = render(mod[0][1].main())
         # It's very important to specify lossless=True here,
         # otherwise we get blurry output
-        rendered[0].save(
+        img_io = BytesIO()
+        print(frames)
+        frames[0].save(
             img_io,
             "WEBP",
             lossless=True,
             alpha_quality=100,
             save_all=True,
-            append_images=rendered[1:],
-            duration=100,
+            append_images=frames[1:],
+            duration=1000,
+            loop=0,
         )
         img_io.seek(0)
         return send_file(img_io, mimetype="image/webp")
@@ -67,7 +71,7 @@ def load_from_path(filename):
     if os.path.isdir(filename):
         files = Path(filename).glob("*.py")
         return [(str(p), import_from_path("render", p)) for p in files]
-    return [(filename, import_from_path("render", filename))]
+    return [(filename, import_from_path("render", filename))].sort()
 
 
 @click.command()

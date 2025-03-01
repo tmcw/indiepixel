@@ -1,18 +1,11 @@
 """Render a gradient."""
 
-from PIL import Image as ImagePIL
-from PIL import ImageDraw
-
 from indiepixel import Box, Column, Rect, Row
 
 
-def render():
+def main():
     """Render the widget."""
-    frames = []
-    im = ImagePIL.new("RGB", (64, 32))
-    draw = ImageDraw.Draw(im)
-    draw.fontmode = "1"
-    layout = Box(
+    return Box(
         Column(
             children=[
                 Row(
@@ -30,6 +23,3 @@ def render():
         ),
         background="#000",
     )
-    layout.paint(draw, im, (0, 0, 64, 32))
-    frames.append(im)
-    return frames

@@ -91,9 +91,9 @@ _* = currently not tidbyt-compatible_
   - [x] Circle
   - [x] PieChart
   - [x] Image
+  - [x] Animation
   - [x] WrappedText
     - [ ] Resizing
     - [ ] Animation
-  - [ ] Animation
   - [ ] Plot
   - [ ] 'expand' option

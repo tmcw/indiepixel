@@ -2,21 +2,14 @@
 
 from pathlib import Path
 
-from PIL import Image as ImagePIL
-from PIL import ImageDraw
-
 # import pytz
 from indiepixel import Box, Column, Image, Rect, Row, Text
 
 
-def render():
+def main():
     """Render a bunch of stuff."""
-    frames = []
-    im = ImagePIL.new("RGB", (64, 32))
-    draw = ImageDraw.Draw(im)
-    draw.fontmode = "1"
     # tz = pytz.timezone("America/New_York")
-    layout = Box(
+    return Box(
         Column(
             [
                 Row(
@@ -148,6 +141,3 @@ def render():
     #     ]),
     #     padding=2, background=(100, 0, 0, 255)
     # )
-    layout.paint(draw, im, (0, 0, 64, 32))
-    frames.append(im)
-    return frames

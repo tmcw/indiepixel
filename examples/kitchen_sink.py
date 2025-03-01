@@ -150,7 +150,7 @@ def render():
     #     ]),
     #     padding=2, background=(100, 0, 0, 255)
     # )
-    layout.paint(draw, im, (0, 0, 64, 32))
+    layout.paint(draw, im, (0, 0, 64, 32), 0)
     frames.append(im)
     return frames
 

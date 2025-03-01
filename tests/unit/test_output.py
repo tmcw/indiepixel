@@ -34,7 +34,7 @@ def render_widget(image, image_draw):
     """Render a widget to PNG image data."""
 
     def render_widget_impl(widget: Renderable) -> bytes:
-        widget.paint(image_draw, image, (0, 0, 64, 32))
+        widget.paint(image_draw, image, (0, 0, 64, 32), 0)
 
         buffer = BytesIO()
         image.save(buffer, format="PNG")
