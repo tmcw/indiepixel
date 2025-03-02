@@ -1,9 +1,9 @@
 """Indiepixel's widgets and rendering logic."""
 
 from abc import ABC, abstractmethod
+from itertools import pairwise
 from pathlib import Path
 from typing import Literal
-from itertools import pairwise
 
 from PIL import Image as ImagePIL
 from PIL import ImageColor, ImageDraw, ImageFont
