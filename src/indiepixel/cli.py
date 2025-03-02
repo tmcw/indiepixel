@@ -12,7 +12,7 @@ from flask import Flask, render_template, send_file
 from indiepixel import render
 
 
-def create_server(filename: str):
+def create_server(filename: str, duration: int):
     """Produce a server that will display the widgets listed by mods."""
     app = Flask(__name__)
 
@@ -48,7 +48,7 @@ def create_server(filename: str):
             alpha_quality=100,
             save_all=True,
             append_images=frames[1:],
-            duration=1000,
+            duration=duration,
             loop=0,
         )
         img_io.seek(0)
@@ -79,8 +79,9 @@ def load_from_path(filename):
 
 @click.command()
 @click.argument("filename")
-def cli(filename):
+@click.option("--duration", default=500, help="Frame duration for animations")
+def cli(filename: str, duration: int):
     """Run indiepixel in a CLI."""
-    app = create_server(filename)
+    app = create_server(filename, duration)
     print("created app", app)
     app.run(debug=True)
