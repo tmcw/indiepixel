@@ -321,7 +321,7 @@ class Image(Renderable):
     def __init__(
         self,
         *,
-        src: str,
+        src: str | Path,
     ) -> None:
         """Construct an image widget."""
         self.src = src
@@ -333,16 +333,24 @@ class Image(Renderable):
 
     def frame_count(self) -> int:
         """How many frames this widget produces."""
-        return 1
+        return getattr(self._image, "n_frames", 1)
 
     def paint(
         self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Pastes an image onto the canvas."""
-        im.paste(
-            self._image,
-            (bounds[0], bounds[1]),
-        )
+        if self.frame_count() == 1:
+            im.paste(
+                self._image,
+                (bounds[0], bounds[1]),
+            )
+        else:
+            # TODO: maybe use alpha composite instead?
+            self._image.seek(frame)
+            im.paste(
+                self._image,
+                (bounds[0], bounds[1]),
+            )
 
 
 # https://github.com/tidbyt/pixlet/blob/main/render/box.go
