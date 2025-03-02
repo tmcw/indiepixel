@@ -1,6 +1,6 @@
 [project]
 name = "indiepixel"
-version = "0.8.0"
+version = "0.8.1"
 description = "Generate pixel graphics for the Tidbyt"
 authors = [{ name = "Tom MacWright", email = "tom@macwright.com" }]
 classifiers = [
@@ -36,8 +36,12 @@ dev = [
     "pre-commit>=4.1.0",
     "pyright>=1.1.393",
     "syrupy>=4.8.1",
+    "flask>=3.1.0",
+    "fastapi>=0.115.11",
+    "uvicorn>=0.34.0",
+    "gunicorn>=23.0.0"
 ]
-examples = ["flask>=3.1.0", "gunicorn>=23.0.0", "pytz>=2024.2"]
+examples = ["pytz>=2024.2"]
 
 [tool.ruff]
 fix = true

@@ -5,23 +5,30 @@ import sys
 from importlib.util import module_from_spec, spec_from_file_location
 from io import BytesIO
 from pathlib import Path
+import uvicorn
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 import click
-from flask import Flask, render_template, send_file
 
 from indiepixel import render
+
+templates = Jinja2Templates(directory="templates")
 
 
 def create_server(filename: str, duration: int):
     """Produce a server that will display the widgets listed by mods."""
-    app = Flask(__name__)
+    app = FastAPI()
 
-    @app.route("/")
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+
+    @app.get("/")
     def root() -> str:
         mods = load_from_path(filename)
         return render_template("index.html", widgets=mods)
 
-    @app.route("/widget/<path:subpath>")
+    @app.get("/widget/<path:subpath>")
     def widget(subpath) -> str:
         mods = load_from_path(filename)
         widget = next((w for w in mods if w[0] == subpath), None)
@@ -29,7 +36,7 @@ def create_server(filename: str, duration: int):
             return render_template("not_found.html")
         return render_template("widget.html", widget=widget)
 
-    @app.route("/image/<path:subpath>.webp")
+    @app.get("/image/<path:subpath>.webp")
     def image(subpath):
         mods = load_from_path(filename)
         """Display an image."""
@@ -78,10 +85,16 @@ def load_from_path(filename):
 
 
 @click.command()
-@click.argument("filename")
-@click.option("--duration", default=500, help="Frame duration for animations")
-def cli(filename: str, duration: int):
+@click.argument("filename", envvar=["INDIEPIXEL_FILE"])
+@click.option(
+    "--duration",
+    envvar=["INDIEPIXEL_DURATION"],
+    default=500,
+    help="Frame duration for animations",
+)
+@click.option("--dev/--no-dev", default=False)
+def cli(filename: str, duration: int, dev: bool):  # noqa: FBT001
     """Run indiepixel in a CLI."""
     app = create_server(filename, duration)
     print("created app", app)
-    app.run(debug=True)
+    uvicorn.run(app)
