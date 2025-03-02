@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: tidbyt
-    runtime: python
-    plan: free
-    buildCommand: |
-      pip install uv
-      uv sync --group examples
-    startCommand: gunicorn app:app
