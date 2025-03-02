@@ -85,16 +85,16 @@ wheels = [
 
 [[package]]
 name = "indiepixel"
-version = "0.8.1"
+version = "0.8.2"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
+    { name = "flask" },
     { name = "pillow" },
 ]
 
 [package.dev-dependencies]
 dev = [
-    { name = "flask" },
     { name = "pre-commit" },
     { name = "pyright" },
     { name = "pytest" },
@@ -109,12 +109,12 @@ examples = [
 [package.metadata]
 requires-dist = [
     { name = "click", specifier = ">=8.1.7" },
+    { name = "flask", specifier = ">=3.1.0" },
     { name = "pillow", specifier = ">=11.0.0" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "flask", specifier = ">=3.1.0" },
     { name = "pre-commit", specifier = ">=4.1.0" },
     { name = "pyright", specifier = ">=1.1.393" },
     { name = "pytest", specifier = ">=8.3.4" },
