@@ -84,4 +84,5 @@ def cli(filename: str, duration: int):
     """Run indiepixel in a CLI."""
     app = create_server(filename, duration)
     print("created app", app)
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, port=port)
