@@ -1,6 +1,6 @@
 [project]
 name = "indiepixel"
-version = "0.8.2"
+version = "0.8.3"
 description = "Generate pixel graphics for the Tidbyt"
 authors = [{ name = "Tom MacWright", email = "tom@macwright.com" }]
 classifiers = [
