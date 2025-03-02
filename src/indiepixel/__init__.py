@@ -3,6 +3,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Literal
+from itertools import pairwise
 
 from PIL import Image as ImagePIL
 from PIL import ImageColor, ImageDraw, ImageFont
@@ -230,13 +231,10 @@ def expand(size: Size, other: Size) -> Size:
 class Animation(Renderable):
     """Animations turns a list of children into an animation, where each child is a frame.."""
 
-    def __init__(
-        self,
-        *,
-        children: list[Renderable],
-    ) -> None:
+    def __init__(self, *, children: list[Renderable], debug_label: str = "") -> None:
         """Construct an animation widget."""
         self.children = children
+        self.debug_label = debug_label
 
     def size(self, bounds: Bounds):
         """Provide the dimensions of this rectangle."""
@@ -246,16 +244,40 @@ class Animation(Renderable):
         return size
 
     def frame_count(self):
-        """Calculate the number of frames which is the number of children."""
-        return len(self.children)
+        """
+        Calculate frames as childs frames.
+
+        For children that are animated themselves, this will
+        produce the sum of all their frame counts.
+        """
+        count = sum([child.frame_count() for child in self.children])
+        print(f"{self.debug_label} Count={count}")
+        return count
 
     def paint(
         self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
-        """Paints a rectangle."""
-        print(f"Rendering frame {frame}")
-        print(self.children)
-        self.children[frame].paint(draw, im, bounds, frame)
+        """Paints each child for each frame."""
+        counts = [child.frame_count() for child in self.children]
+
+        # Create a list of the overall start positions. So for example
+        # if you had an input like
+        # 1, 1, 1, 1
+        # this would produce
+        # 1, 2, 3, 4
+        starts: list[int | None] = []
+        accumulator = 0
+        for count in counts:
+            starts.append(accumulator)
+            accumulator += count
+        starts.append(None)
+
+        for i, (a, b) in enumerate(pairwise(starts)):
+            if a is None:
+                raise Exception("This should never happen in the Animation component")
+            if (frame >= a) and ((b is None) or (frame < b)):
+                self.children[i].paint(draw, im, bounds, frame - a)
+                return
 
 
 # https://github.com/tidbyt/pixlet/blob/main/render/box.go
