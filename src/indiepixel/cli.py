@@ -7,7 +7,7 @@ from io import BytesIO
 from pathlib import Path
 
 import click
-from flask import Flask, render_template, send_file
+from flask import Flask, render_template, request, send_file
 
 from indiepixel import render
 
@@ -19,15 +19,17 @@ def create_server(filename: str, duration: int):
     @app.route("/")
     def root() -> str:
         mods = load_from_path(filename)
-        return render_template("index.html", widgets=mods)
+        host = request.headers["Host"]
+        return render_template("index.html", widgets=mods, host=host)
 
     @app.route("/widget/<path:subpath>")
     def widget(subpath) -> str:
         mods = load_from_path(filename)
         widget = next((w for w in mods if w[0] == subpath), None)
+        host = request.headers["Host"]
         if widget is None:
             return render_template("not_found.html")
-        return render_template("widget.html", widget=widget)
+        return render_template("widget.html", widget=widget, host=host)
 
     @app.route("/image/<path:subpath>.webp")
     def image(subpath):

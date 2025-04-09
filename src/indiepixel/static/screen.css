@@ -5,9 +5,12 @@ body {
   font-size: 16px;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 header {
   padding: 10px;
-  line-height: 0;
 }
 
 header h1 {
@@ -18,7 +21,7 @@ header h1 {
 header h1 a {
   text-decoration: none;
   color: #fff;
-  font-size: 16px;
+  font-size: 30px;
   font-weight: normal;
 }
 
@@ -29,12 +32,23 @@ header h1 a:hover {
 main {
   padding: 10px;
   margin: 0 auto;
-  max-width: 642px;
+}
+
+main.list {
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: repeat(1, 1fr);
+  @media(width > 700px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+main.single {
+  max-width: 700px;
 }
 
 section {
   border: 1px solid #fff;
-  margin-bottom: 40px;
   line-height: 0;
 }
 
@@ -63,4 +77,11 @@ section img {
   -webkit-mask-size: contain;
   mask-image: url(/static/mask.png);
   -webkit-mask-image: url(/static/mask.png);
+}
+
+section input {
+  font-family: monospace;
+  width: 100%;
+  padding: 5px;
+  font-size: inherit;
 }
