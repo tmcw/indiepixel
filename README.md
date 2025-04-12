@@ -21,6 +21,73 @@ a mainstream language.
 This is a WIP implementation of the same concepts as pixlet
 in Python.
 
+## Getting started
+
+First, install indiepixel with uv.
+
+I use [mise](https://mise.jdx.dev/) to manage my versions, so I'd start out with
+
+```sh
+mise install python uv
+```
+
+But that's optional if you have global installations of Python and uv that you like.
+Also: this process works without uv, with pip etc: if you're a Python expert, you can probably
+piece that together.
+
+Initialize your project:
+
+```sh
+uv init
+```
+
+Then install indiepixel
+
+```
+uv add indiepixel
+```
+
+Create a basic example: for example, copy [clock.py](https://github.com/tmcw/indiepixel/blob/main/examples/cli/clock.py) to the current directory.
+
+Then run:
+
+```
+uv run indiepixel clock.py
+```
+
+Then, bam! You've got that clock rendering. If you want to get fancier,
+you can create a directory of widgets and move `clock.py` into it, point
+indiepixel at that, and it'll show all of them rendered in its web interface.
+
+## Deploying
+
+I like to deploy this with [Render](https://render.com/) but it's totally up to you. Again,
+Python experts probably can just figure this out, but with Render:
+
+Set up Render to deploy from a repo containing your `pyproject.toml` and `clock.py` (or
+whatever widgets you've written)
+
+Render doesn't support uv and it's rough to install. So dump those dependencies into
+requirements.txt so the old-fashioned package managers can understand them:
+
+```
+uv pip freeze > requirements.txt
+```
+
+Your render start command will look like:
+
+```
+indiepixel src/clock.py
+```
+
+And add an environment variable like:
+
+```
+PYTHON_VERSION=3.13.2
+```
+
+To your environment so that it uses a modern version of Python.
+
 ## Development
 
 ### Environment setup
