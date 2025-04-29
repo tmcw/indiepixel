@@ -73,8 +73,6 @@ section h2 a:hover {
 section img {
   image-rendering: pixelated;
   width: 100%;
-  mask-size: contain;
-  -webkit-mask-size: contain;
   mask-image: url(/static/mask.png);
   -webkit-mask-image: url(/static/mask.png);
 }

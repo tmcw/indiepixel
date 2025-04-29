@@ -15,6 +15,7 @@ type InputColor = str | tuple[int, int, int] | None
 
 fonts: dict[str, ImageFont.ImageFont] = {}
 
+DEFAULT_SIZE = (64, 32)
 HERE = Path(__file__).resolve().parent
 
 
@@ -73,17 +74,20 @@ class Root(Renderable):
         child: Renderable,
         max_age: int = 100,
         delay: int = 100,
+        # TODO: this doesn't do anything yet!
         show_full_application: bool = False,
+        size: Size = DEFAULT_SIZE,
     ) -> None:
         """Construct a root widget."""
         self.child = child
         self.max_age = max_age
         self.delay = delay
         self.show_full_application = show_full_application
+        self._size = size
 
     def size(self, bounds: Bounds):
         """Return the dimensions of a widget."""
-        return (64, 32)
+        return self._size
 
     def frame_count(self):
         """Calculate frames as childs frames."""
@@ -100,8 +104,8 @@ class Root(Renderable):
                 # TODO: this hardcodes dimensions and should not.
                 0,
                 0,
-                64,
-                32,
+                self._size[0],
+                self._size[1],
             ),
             frame,
         )
@@ -687,12 +691,13 @@ def render(widget: Renderable) -> list[ImagePIL.Image]:
     frames: list[ImagePIL.Image] = []
 
     frame_count = widget.frame_count()
+    size = widget.size((0, 0, 0, 0)) if isinstance(widget, Root) else DEFAULT_SIZE
 
     for frame in range(frame_count):
-        im = ImagePIL.new("RGB", (64, 32))
+        im = ImagePIL.new("RGB", size)
         draw = ImageDraw.Draw(im)
         draw.fontmode = "1"
-        widget.paint(draw, im, (0, 0, 64, 32), frame)
+        widget.paint(draw, im, (0, 0, size[0], size[1]), frame)
         frames.append(im)
 
     return frames
