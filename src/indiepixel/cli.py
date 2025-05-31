@@ -30,6 +30,7 @@ def create_server(filename: str, duration: int):
         host = request.headers["Host"]
         if widget is None:
             return render_template("not_found.html")
+        print(widget)
         return render_template("widget.html", widget=widget, host=host)
 
     @app.route("/image/<path:subpath>.webp")
