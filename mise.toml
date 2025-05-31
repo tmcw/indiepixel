@@ -6,3 +6,5 @@ uv = "latest"
 [tasks.dev]
 run = "uv run indiepixel examples/cli"
 
+[tasks.publish]
+run = "uv build && uv sync && uv publish"
