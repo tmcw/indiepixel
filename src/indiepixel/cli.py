@@ -5,11 +5,12 @@ import sys
 from importlib.util import module_from_spec, spec_from_file_location
 from io import BytesIO
 from pathlib import Path
+from types import ModuleType
 
 import click
 from flask import Flask, render_template, request, send_file
 
-from indiepixel import render
+from indiepixel import DEFAULT_SIZE, Root, Size, render
 
 
 def create_server(filename: str, duration: int):
@@ -29,6 +30,7 @@ def create_server(filename: str, duration: int):
         host = request.headers["Host"]
         if widget is None:
             return render_template("not_found.html")
+        print(widget)
         return render_template("widget.html", widget=widget, host=host)
 
     @app.route("/image/<path:subpath>.webp")
@@ -38,11 +40,10 @@ def create_server(filename: str, duration: int):
         mod = [x for x in mods if x[0] == subpath]
         if len(mod) == 0:
             return f"Image not found, available modules are {map(lambda m: m[0], mods)}"
-        frames = render(mod[0][1].main())
+        frames = render(mod[0][1][0].main())
         # It's very important to specify lossless=True here,
         # otherwise we get blurry output
         img_io = BytesIO()
-        print(frames)
         frames[0].save(
             img_io,
             "WEBP",
@@ -59,7 +60,7 @@ def create_server(filename: str, duration: int):
     return app
 
 
-def import_from_path(module_name, file_path):
+def import_from_path(module_name, file_path) -> tuple[ModuleType, Size]:
     """Import a module given its name and file path."""
     print(f"importing {file_path}")
     spec = spec_from_file_location(module_name, file_path)
@@ -68,7 +69,9 @@ def import_from_path(module_name, file_path):
     module = module_from_spec(spec)
     sys.modules[module_name] = module
     spec.loader.exec_module(module)
-    return module
+    m = module.main()
+    size = m.size((0, 0, 0, 0)) if isinstance(m, Root) else DEFAULT_SIZE
+    return (module, size)
 
 
 def load_from_path(filename):
@@ -85,6 +88,5 @@ def load_from_path(filename):
 def cli(filename: str, duration: int):
     """Run indiepixel in a CLI."""
     app = create_server(filename, duration)
-    print("created app", app)
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, port=port, host="0.0.0.0")  # noqa: S104
