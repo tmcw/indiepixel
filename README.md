@@ -47,17 +47,34 @@ Then install indiepixel
 uv add indiepixel
 ```
 
-Create a basic example: for example, copy [clock.py](https://github.com/tmcw/indiepixel/blob/main/examples/cli/clock.py) to the current directory.
+Create a widget file, like `clock.py`:
 
-Then run:
+```python
+import datetime
+from indiepixel import Box, Root, Row, Text
+
+def main():
+    now = datetime.datetime.now()
+    return Root(
+        child=Box(
+            Row(children=[
+                Text(content=now.strftime("%I:%M %p"), color="#fff"),
+            ]),
+            padding=2,
+            background="#000",
+        ),
+    )
+```
+
+Then run it:
 
 ```
 uv run indiepixel clock.py
 ```
 
-Then, bam! You've got that clock rendering. If you want to get fancier,
-you can create a directory of widgets and move `clock.py` into it, point
-indiepixel at that, and it'll show all of them rendered in its web interface.
+Open http://localhost:5000 in your browser and you'll see the clock rendering.
+You can also point indiepixel at a directory of widget files and it'll show
+all of them in its web interface.
 
 ## Deploying
 
@@ -108,7 +125,7 @@ uv run pre-commit install
 
 ### Running examples
 
-To run `examples/kitchen_sink.py`:
+To run examples:
 
 ```
 uv run indiepixel examples/cli/gradient.py
@@ -152,8 +169,9 @@ _* = currently not tidbyt-compatible_
   - [x] Text
   - [x] Box*
   - [x] Rect*
-  - [x] Column*
+  - [x] Column
   - [x] Row
+  - [x] Root
   - [x] Stack
   - [x] Circle
   - [x] PieChart
@@ -162,5 +180,5 @@ _* = currently not tidbyt-compatible_
   - [x] WrappedText
     - [ ] Resizing
     - [ ] Animation
-  - [ ] Plot
-  - [ ] 'expand' option
+  - [x] Plot
+  - [x] Row/Column `expanded`, `main_align`, `cross_align`

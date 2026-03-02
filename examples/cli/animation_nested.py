@@ -10,7 +10,6 @@ def main():
     This matches the example in https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md#stack
     Successfully matches!
     """
-
     return Animation(
         debug_label="Outer",
         children=[

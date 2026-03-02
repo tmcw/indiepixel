@@ -15,5 +15,13 @@
       </h1>
     </header>
     {% block main %}{% endblock %}
+    <script>
+      setInterval(function() {
+        document.querySelectorAll('img').forEach(function(img) {
+          var src = img.src.split('?')[0];
+          img.src = src + '?t=' + Date.now();
+        });
+      }, 2000);
+    </script>
   </body>
 </html>

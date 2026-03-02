@@ -1,7 +1,8 @@
 """Render an animation."""
 
-from indiepixel import Animation, Image
 from pathlib import Path
+
+from indiepixel import Image
 
 
 def main():
