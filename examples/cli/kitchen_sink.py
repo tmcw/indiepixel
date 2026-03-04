@@ -19,7 +19,7 @@ def main():
                         Rect(width=4, height=4, color="orange"),
                         Rect(width=4, height=4, color="blue"),
                     ],
-                    expand=True,
+                    expanded=True,
                 ),
                 Row(
                     [

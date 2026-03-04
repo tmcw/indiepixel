@@ -11,6 +11,7 @@
           </h2>
           <img src='/image/{{ widget[0] }}.webp' style='mask-size: {{ (100 * 64 / widget[1][1][0]) }}%' />
           <input type="text" value="http://{{host}}/image/{{ widget[0] }}.webp" />
+          <button onclick="fetch('/screen/{{ widget[0] }}', {method:'POST'}).then(function(){alert('Active: {{ widget[0] }}')})">Set active</button>
         </section>
       </div>
     {% endfor %}

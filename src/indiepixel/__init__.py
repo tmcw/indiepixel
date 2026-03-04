@@ -6,12 +6,17 @@ from pathlib import Path
 from typing import Literal
 
 from PIL import Image as ImagePIL
-from PIL import ImageColor, ImageDraw, ImageFont
+from PIL import ImageColor, ImageDraw, ImageEnhance, ImageFont
 
 type Size = tuple[int, int]
 type Bounds = tuple[int, int, int, int]
 type Color = tuple[int, int, int] | tuple[int, int, int, int]
 type InputColor = str | tuple[int, int, int] | None
+type MainAlign = Literal[
+    "start", "end", "center", "space_between", "space_evenly", "space_around"
+]
+type CrossAlign = Literal["start", "end", "center"]
+type ChartType = Literal["scatter", "line"]
 
 fonts: dict[str, ImageFont.ImageFont] = {}
 
@@ -74,16 +79,17 @@ class Root(Renderable):
         child: Renderable,
         max_age: int = 100,
         delay: int = 100,
-        # TODO: this doesn't do anything yet!
-        show_full_application: bool = False,
+        show_full_animation: bool = False,
         size: Size = DEFAULT_SIZE,
+        brightness: float = 1.0,
     ) -> None:
         """Construct a root widget."""
         self.child = child
         self.max_age = max_age
         self.delay = delay
-        self.show_full_application = show_full_application
+        self.show_full_animation = show_full_animation
         self._size = size
+        self.brightness = brightness
 
     def size(self, bounds: Bounds):
         """Return the dimensions of a widget."""
@@ -100,13 +106,7 @@ class Root(Renderable):
         self.child.paint(
             draw,
             im,
-            (
-                # TODO: this hardcodes dimensions and should not.
-                0,
-                0,
-                self._size[0],
-                self._size[1],
-            ),
+            (0, 0, self._size[0], self._size[1]),
             frame,
         )
 
@@ -596,12 +596,68 @@ class Stack(Renderable):
             child.paint(draw, im, (bounds), frame)
 
 
+def _accumulate_positions(start: float, sizes: list[int], gap: float = 0) -> list[int]:
+    """Build a list of positions by accumulating sizes with optional gaps."""
+    positions = []
+    pos = start
+    for s in sizes:
+        positions.append(round(pos))
+        pos += s + gap
+    return positions
+
+
+def distribute_space(total: int, sizes: list[int], align: MainAlign) -> list[int]:
+    """Calculate starting positions for children along the main axis."""
+    used = sum(sizes)
+    remaining = max(total - used, 0)
+    n = len(sizes)
+
+    match align:
+        case "end":
+            return _accumulate_positions(remaining, sizes)
+        case "center":
+            return _accumulate_positions(remaining // 2, sizes)
+        case "space_between":
+            gap = remaining / (n - 1) if n > 1 else 0
+            return _accumulate_positions(0, sizes, gap)
+        case "space_evenly":
+            gap = remaining / (n + 1) if n > 0 else 0
+            return _accumulate_positions(gap, sizes, gap)
+        case "space_around":
+            gap = remaining / n if n > 0 else 0
+            return _accumulate_positions(gap / 2, sizes, gap)
+        case _:
+            return _accumulate_positions(0, sizes)
+
+
+def cross_offset(total: int, child_size: int, align: CrossAlign) -> int:
+    """Calculate the offset for a child along the cross axis."""
+    match align:
+        case "end":
+            return total - child_size
+        case "center":
+            return (total - child_size) // 2
+        case _:
+            return 0
+
+
+# https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md#column
 class Column(Renderable):
     """A column of widgets, laid out vertically."""
 
-    def __init__(self, children: list[Renderable]) -> None:
+    def __init__(
+        self,
+        children: list[Renderable],
+        *,
+        expanded: bool = False,
+        main_align: MainAlign = "start",
+        cross_align: CrossAlign = "start",
+    ) -> None:
         """Construct a column widget."""
         self.children = children
+        self.expanded = expanded
+        self.main_align: MainAlign = main_align
+        self.cross_align: CrossAlign = cross_align
 
     def size(self, bounds: Bounds):
         """Sizes the items in the column."""
@@ -610,11 +666,9 @@ class Column(Renderable):
         for child in self.children:
             (cw, ch) = child.size(bounds)
             width = max(cw, width)
-            # NOTE: this might be an off-by-one,
-            # it's pretty fuzzy right now but if
-            # you omit this, you'll get overlapping items
-            # if you don't change anything else.
-            height = height + ch + 1
+            height = height + ch
+        if self.expanded:
+            return (width, bounds[3] - bounds[1])
         return (width, height)
 
     def frame_count(self) -> int:
@@ -625,27 +679,39 @@ class Column(Renderable):
         self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Paints the items in the column."""
-        top = bounds[1]
-        for child in self.children:
-            child.paint(draw, im, (bounds[0], top, bounds[2], bounds[3]), frame)
-            # Debug
-            # draw.rectangle([
-            #     bounds[0],
-            #     top,
-            #     bounds[0] + 1,
-            #     top + 1
-            # ], fill=(255, 0, 0, 255))
-            (cw, ch) = child.size(bounds)
-            top = top + ch + 1
+        child_sizes = [child.size(bounds) for child in self.children]
+        child_heights = [s[1] for s in child_sizes]
+        max_width = max((s[0] for s in child_sizes), default=0)
+
+        total_height = bounds[3] - bounds[1] if self.expanded else sum(child_heights)
+        positions = distribute_space(total_height, child_heights, self.main_align)
+
+        for i, child in enumerate(self.children):
+            cw, ch = child_sizes[i]
+            x_off = cross_offset(max_width, cw, self.cross_align)
+            x = bounds[0] + x_off
+            y = bounds[1] + positions[i]
+            child.paint(draw, im, (x, y, bounds[2], bounds[3]), frame)
 
 
+# https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md#row
 class Row(Renderable):
     """Produces a row of widgets, laid out horizontally."""
 
-    def __init__(self, children: list[Renderable], *, expand: bool = False) -> None:
+    def __init__(
+        self,
+        children: list[Renderable],
+        *,
+        expanded: bool = False,
+        main_align: MainAlign = "start",
+        cross_align: CrossAlign = "start",
+        expand: bool | None = None,
+    ) -> None:
         """Construct a row widget."""
         self.children = children
-        self.expand = expand
+        self.expanded = expand if expand is not None else expanded
+        self.main_align: MainAlign = main_align
+        self.cross_align: CrossAlign = cross_align
 
     def size(self, bounds: Bounds) -> tuple[int, int]:
         """Sizes the items in the row."""
@@ -655,7 +721,7 @@ class Row(Renderable):
             (cw, ch) = child.size(bounds)
             height = max(ch, height)
             width = width + cw
-        if self.expand:
+        if self.expanded:
             return (bounds[2] - bounds[0], height)
         return (width, height)
 
@@ -667,23 +733,135 @@ class Row(Renderable):
         self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Paints the items in the row."""
-        if self.expand:
-            widths = [child.size(bounds) for child in self.children]  # noqa: F841
-            left = bounds[0]
-            for child in self.children:
-                child.paint(draw, im, (left, bounds[1], bounds[2], bounds[3]), frame)
-                (cw, ch) = child.size(bounds)
-                # TODO: these +1 increments are a code smell,
-                # and I want to know why they aren't correct'
-                left = left + cw + 1
+        child_sizes = [child.size(bounds) for child in self.children]
+        child_widths = [s[0] for s in child_sizes]
+        max_height = max((s[1] for s in child_sizes), default=0)
+
+        total_width = bounds[2] - bounds[0] if self.expanded else sum(child_widths)
+        positions = distribute_space(total_width, child_widths, self.main_align)
+
+        for i, child in enumerate(self.children):
+            cw, ch = child_sizes[i]
+            y_off = cross_offset(max_height, ch, self.cross_align)
+            x = bounds[0] + positions[i]
+            y = bounds[1] + y_off
+            child.paint(draw, im, (x, y, bounds[2], bounds[3]), frame)
+
+
+# https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md#plot
+class Plot(Renderable):
+    """Visualizes data series as line or scatter charts."""
+
+    def __init__(
+        self,
+        *,
+        data: list[tuple[float, float]],
+        width: int,
+        height: int,
+        color: InputColor = "#fff",
+        color_inverted: InputColor = None,
+        fill: bool = False,
+        fill_color: InputColor = None,
+        fill_color_inverted: InputColor = None,
+        chart_type: ChartType = "line",
+        x_lim: tuple[float, float] | None = None,
+        y_lim: tuple[float, float] | None = None,
+    ) -> None:
+        """Construct a plot widget."""
+        self.data = sorted(data, key=lambda p: p[0])
+        self.width = width
+        self.height = height
+        self.color = maybe_parse_color(color) or (255, 255, 255)
+        self.color_inverted = maybe_parse_color(color_inverted) or self.color
+        self.fill = fill
+        self.fill_color = maybe_parse_color(fill_color) or self.color
+        self.fill_color_inverted = (
+            maybe_parse_color(fill_color_inverted) or self.color_inverted
+        )
+        self.chart_type = chart_type
+        self.x_lim = x_lim
+        self.y_lim = y_lim
+
+    def size(self, bounds: Bounds):
+        """Return the configured width and height."""
+        return (self.width, self.height)
+
+    def frame_count(self) -> int:
+        """How many frames this widget produces."""
+        return 1
+
+    def _map_point(self, x: float, y: float, bounds: Bounds) -> tuple[float, float]:
+        """Map a data point to pixel coordinates."""
+        x_vals = [p[0] for p in self.data]
+        y_vals = [p[1] for p in self.data]
+        x_min = self.x_lim[0] if self.x_lim else min(x_vals)
+        x_max = self.x_lim[1] if self.x_lim else max(x_vals)
+        y_min = self.y_lim[0] if self.y_lim else min(y_vals)
+        y_max = self.y_lim[1] if self.y_lim else max(y_vals)
+
+        x_range = x_max - x_min
+        y_range = y_max - y_min
+
+        px = bounds[0] + ((x - x_min) / x_range * (self.width - 1) if x_range else 0)
+        py = (
+            bounds[1]
+            + self.height
+            - 1
+            - ((y - y_min) / y_range * (self.height - 1) if y_range else 0)
+        )
+        return (px, py)
+
+    def paint(
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
+    ) -> None:
+        """Paints the plot."""
+        if not self.data:
+            return
+
+        points = [self._map_point(x, y, bounds) for x, y in self.data]
+
+        if self.fill:
+            y_vals = [p[1] for p in self.data]
+            y_min = self.y_lim[0] if self.y_lim else min(y_vals)
+            y_max = self.y_lim[1] if self.y_lim else max(y_vals)
+            y_range = y_max - y_min
+            zero_y = (
+                bounds[1]
+                + self.height
+                - 1
+                - ((0 - y_min) / y_range * (self.height - 1) if y_range else 0)
+            )
+            zero_y = max(bounds[1], min(bounds[1] + self.height - 1, zero_y))
+
+            for i in range(len(points) - 1):
+                x0, y0 = points[i]
+                x1, y1 = points[i + 1]
+                for px in range(round(x0), round(x1) + 1):
+                    if x1 == x0:
+                        py = y0
+                    else:
+                        t = (px - x0) / (x1 - x0)
+                        py = y0 + t * (y1 - y0)
+                    orig_y = self.data[i][1]
+                    fc = self.fill_color if orig_y >= 0 else self.fill_color_inverted
+                    top = min(py, zero_y)
+                    bottom = max(py, zero_y)
+                    draw.line(
+                        [(px, round(top)), (px, round(bottom))],
+                        fill=fc,
+                    )
+
+        if self.chart_type == "line":
+            for i in range(len(points) - 1):
+                c = self.color if self.data[i][1] >= 0 else self.color_inverted
+                draw.line(
+                    [points[i], points[i + 1]],
+                    fill=c,
+                )
         else:
-            left = bounds[0]
-            for child in self.children:
-                child.paint(draw, im, (left, bounds[1], bounds[2], bounds[3]), frame)
-                (cw, ch) = child.size(bounds)
-                # TODO: these +1 increments are a code smell,
-                # and I want to know why they aren't correct'
-                left = left + cw + 1
+            for i, (px, py) in enumerate(points):
+                c = self.color if self.data[i][1] >= 0 else self.color_inverted
+                draw.point((round(px), round(py)), fill=c)
 
 
 def render(widget: Renderable) -> list[ImagePIL.Image]:
@@ -692,12 +870,17 @@ def render(widget: Renderable) -> list[ImagePIL.Image]:
 
     frame_count = widget.frame_count()
     size = widget.size((0, 0, 0, 0)) if isinstance(widget, Root) else DEFAULT_SIZE
+    brightness = widget.brightness if isinstance(widget, Root) else 1.0
 
     for frame in range(frame_count):
         im = ImagePIL.new("RGB", size)
         draw = ImageDraw.Draw(im)
         draw.fontmode = "1"
         widget.paint(draw, im, (0, 0, size[0], size[1]), frame)
+
+        if brightness < 1.0:
+            im = ImageEnhance.Brightness(im).enhance(brightness)
+
         frames.append(im)
 
     return frames
