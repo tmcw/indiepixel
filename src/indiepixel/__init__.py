@@ -153,7 +153,7 @@ class PieChart(Renderable):
             draw.pieslice(
                 xy=[
                     (bounds[0], bounds[1]),
-                    (bounds[0] + self.diameter, bounds[1] + self.diameter),
+                    (bounds[0] + self.diameter - 1, bounds[1] + self.diameter - 1),
                 ],
                 start=start,
                 end=start + weight,
@@ -197,9 +197,14 @@ class Circle(Renderable):
         self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
     ) -> None:
         """Paints a circle."""
-        draw.circle(
-            xy=[bounds[0] + self.radius, bounds[1] + self.radius],
-            radius=self.radius,
+        draw.ellipse(
+            [
+                bounds[0],
+                bounds[1],
+                # Pillow's box coordinates are inclusive, so subtract 1
+                bounds[0] + self.diameter - 1,
+                bounds[1] + self.diameter - 1,
+            ],
             fill=self.color,
         )
         if self.child:
@@ -220,8 +225,8 @@ class Circle(Renderable):
                 (
                     bounds[0] + pad_x,
                     bounds[1] + pad_y,
-                    bounds[0] + self.diameter - pad_y,
-                    bounds[1] + self.diameter - pad_x,
+                    bounds[0] + self.diameter - pad_x,
+                    bounds[1] + self.diameter - pad_y,
                 ),
                 frame,
             )
@@ -313,7 +318,12 @@ class Rect(Renderable):
     ) -> None:
         """Paints a rectangle."""
         draw.rectangle(
-            [bounds[0], bounds[1], bounds[0] + self.width, bounds[1] + self.height],
+            [
+                bounds[0],
+                bounds[1],
+                bounds[0] + self.width - 1,
+                bounds[1] + self.height - 1,
+            ],
             fill=self.color,
         )
 
@@ -385,7 +395,7 @@ class Box(Renderable):
         if self.expand:
             return (bounds[2] - bounds[0], bounds[3] - bounds[1])
         (w, h) = self.child.size(bounds)
-        return (w + (self.padding * 2) + 1, h + (self.padding * 2) + 1)
+        return (w + self.padding * 2, h + self.padding * 2)
 
     def frame_count(self) -> int:
         """How many frames this widget produces."""
@@ -396,10 +406,10 @@ class Box(Renderable):
     ) -> None:
         """Paints children and padding."""
         if self.expand:
-            (cw, hh) = self.child.size(bounds)
             if self.background:
                 draw.rectangle(
-                    [bounds[0], bounds[1], bounds[2], bounds[3]], fill=self.background
+                    [bounds[0], bounds[1], bounds[2] - 1, bounds[3] - 1],
+                    fill=self.background,
                 )
             self.child.paint(
                 draw,
@@ -419,8 +429,8 @@ class Box(Renderable):
                     [
                         bounds[0],
                         bounds[1],
-                        bounds[0] + w + self.padding * 2,
-                        bounds[1] + h + self.padding * 2,
+                        bounds[0] + w + self.padding * 2 - 1,
+                        bounds[1] + h + self.padding * 2 - 1,
                     ],
                     fill=self.background,
                 )
