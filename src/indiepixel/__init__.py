@@ -488,11 +488,9 @@ type WrappedTextAlign = Literal["left", "right", "center"]
 
 class WrappedText(Renderable):
     """
-    Text rendered on the canvas.
+    Text wrapped onto multiple lines.
 
     https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md#wrappedtext
-    This is single-line text
-    only for now.
     """
 
     def __init__(
@@ -527,28 +525,34 @@ class WrappedText(Renderable):
         """Split lines in a very naive way."""
         w = self.available_width(bounds)
         # split with no arguments splits on whitespace
-        words = self.content.split()
+        words = self.content.split() or [""]
         first_word = words[0]
         words = words[1:]
         words_with_lengths = [(word, self.font.getlength(word)) for word in words]
         space_width_px = self.font.getlength(" ")
         output_line = first_word
-        output = ""
+        lines = []
         for word, word_width_px in words_with_lengths:
             output_line_width_px = self.font.getlength(output_line)
             width_after = output_line_width_px + word_width_px + space_width_px
             if width_after > w:
-                output = output_line if output == "" else f"{output}\n{output_line}"
+                lines.append(output_line)
                 output_line = word
             else:
                 output_line = f"{output_line} {word}"
-        return f"{output}\n{output_line}"
+        lines.append(output_line)
+        return "\n".join(lines)
 
     def size(self, bounds: Bounds):
         """Sizes wrapped text."""
-        wrapped = self.wrap_text(bounds)
-        bbox = self.font.getbbox(wrapped)
-        return (bounds[2] - bounds[0], bbox[3])
+        draw = ImageDraw.Draw(ImagePIL.new("1", (1, 1)))
+        bbox = draw.multiline_textbbox(
+            (0, 0), self.wrap_text(bounds), font=self.font, spacing=self.linespacing
+        )
+        return (
+            bbox[2] if self.width is None else self.width,
+            bbox[3] if self.height is None else self.height,
+        )
 
     def multiline_width(self, wrapped: str):
         """Get the width of a multi-line string in pixels."""
@@ -560,9 +564,9 @@ class WrappedText(Renderable):
         """Paints text."""
         wrapped = self.wrap_text(bounds)
         text_width = self.multiline_width(wrapped)
-        w = self.available_width(bounds)
         left_anchor = bounds[0]
-        if text_width < w:
+        if self.width is not None and text_width < self.width:
+            w = self.width
             match self.align:
                 case "right":
                     left_anchor += w - text_width
