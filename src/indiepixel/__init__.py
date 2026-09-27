@@ -550,8 +550,8 @@ class WrappedText(Renderable):
             (0, 0), self.wrap_text(bounds), font=self.font, spacing=self.linespacing
         )
         return (
-            bbox[2] if self.width is None else self.width,
-            bbox[3] if self.height is None else self.height,
+            int(bbox[2]) if self.width is None else self.width,
+            int(bbox[3]) if self.height is None else self.height,
         )
 
     def multiline_width(self, wrapped: str):
