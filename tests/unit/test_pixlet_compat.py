@@ -15,7 +15,7 @@ from PIL import Image as ImagePIL
 from PIL import ImageDraw
 from syrupy.extensions.image import PNGImageSnapshotExtension
 
-from indiepixel import Column, Plot, Rect, Root, Row, Text
+from indiepixel import Column, Padding, Plot, Rect, Root, Row, Text
 
 
 @pytest.fixture
@@ -217,6 +217,69 @@ def test_column_cross_align_end(snapshot, render_widget) -> None:
             Rect(width=5, height=5, color="#0f0"),
         ],
         cross_align="end",
+    )
+    assert render_widget(col) == snapshot
+
+
+# --- Padding ---
+
+
+@pytest.mark.parametrize(("pad", "expected"), [(2, (14, 9)), ((1, 2, 3, 4), (14, 11))])
+def test_padding_adds_insets_to_child_size(pad, expected) -> None:
+    padding = Padding(Rect(width=10, height=5, color="#fff"), pad=pad)
+    assert padding.size(BOUNDS) == expected
+
+
+def test_padding_expanded_fills_bounds() -> None:
+    padding = Padding(Rect(width=10, height=5, color="#fff"), pad=2, expanded=True)
+    assert padding.size(BOUNDS) == (64, 32)
+
+
+def test_padding_clips_child(image, image_draw) -> None:
+    padding = Padding(Rect(width=20, height=20, color="#fff"), pad=1, expanded=True)
+    padding.paint(image_draw, image, (0, 0, 10, 10), 0)
+    # Rect is clipped to the 10x10 bounds minus 1px padding
+    assert image.getbbox() == (1, 1, 9, 9)
+
+
+def test_padding_negative_clips_child(image, image_draw) -> None:
+    row = Row(
+        children=[
+            Rect(width=5, height=5, color="#0f0"),
+            Padding(Rect(width=6, height=5, color="#f00"), pad=(-3, 0, 0, 0)),
+        ]
+    )
+    row.paint(image_draw, image, BOUNDS, 0)
+    # Rect shifts 3px left under the pad; its overhang is clipped, not drawn over green
+    assert image.getchannel("R").getbbox() == (5, 0, 8, 5)
+    assert image.getpixel((4, 0)) == (0, 255, 0)
+
+
+def test_padding_color_fills_padded_area(image, image_draw) -> None:
+    padding = Padding(Rect(width=2, height=2, color="#f00"), pad=1, color="#00f")
+    padding.paint(image_draw, image, BOUNDS, 0)
+    assert image.getbbox() == (0, 0, 4, 4)
+    assert image.getpixel((0, 0)) == (0, 0, 255)
+    assert image.getpixel((1, 1)) == (255, 0, 0)
+
+
+def test_padding(snapshot, render_widget) -> None:
+    col = Column(
+        children=[
+            Row(
+                children=[
+                    Padding(Rect(width=5, height=5, color="#f00"), pad=(2, 1, 3, 0)),
+                    Rect(width=5, height=5, color="#0f0"),
+                ]
+            ),
+            Row(
+                children=[
+                    Padding(Rect(width=5, height=5, color="#f00"), pad=1),
+                    Rect(width=5, height=5, color="#0f0"),
+                ]
+            ),
+            Padding(Rect(width=5, height=5, color="#00f"), pad=(4, 1, 0, 0)),
+        ]
     )
     assert render_widget(col) == snapshot
 
