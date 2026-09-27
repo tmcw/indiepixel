@@ -10,6 +10,7 @@ from PIL import ImageColor, ImageDraw, ImageEnhance, ImageFont
 
 type Size = tuple[int, int]
 type Bounds = tuple[int, int, int, int]
+type Insets = tuple[int, int, int, int]
 type Color = tuple[int, int, int] | tuple[int, int, int, int]
 type InputColor = str | tuple[int, int, int] | None
 type MainAlign = Literal[
@@ -447,6 +448,70 @@ class Box(Renderable):
             )
 
 
+class Padding(Renderable):
+    """
+    Insets around a child, clipping it to the padded area.
+
+    https://github.com/tidbyt/pixlet/blob/main/docs/widgets.md#padding
+    """
+
+    def __init__(
+        self,
+        child: Renderable,
+        *,
+        pad: int | Insets = 0,
+        expanded: bool = False,
+        color: InputColor = None,
+    ) -> None:
+        """Construct a padding widget; `pad` is an int or (left, top, right, bottom)."""
+        self.child = child
+        if isinstance(pad, int):
+            pad = (pad, pad, pad, pad)
+        left, top, right, bottom = pad
+        self.pad: Insets = (left, top, right, bottom)
+        self.expanded = expanded
+        self.color: Color | None = maybe_parse_color(color)
+
+    def _inner_bounds(self, bounds: Bounds) -> Bounds:
+        """Shrink bounds by the padding."""
+        left, top, right, bottom = self.pad
+        return (
+            bounds[0] + left,
+            bounds[1] + top,
+            bounds[2] - right,
+            bounds[3] - bottom,
+        )
+
+    def size(self, bounds: Bounds):
+        """Size the child plus padding, or fill bounds if expanded."""
+        if self.expanded:
+            return (bounds[2] - bounds[0], bounds[3] - bounds[1])
+        left, top, right, bottom = self.pad
+        cw, ch = self.child.size(self._inner_bounds(bounds))
+        return (cw + left + right, ch + top + bottom)
+
+    def frame_count(self) -> int:
+        """How many frames this widget produces."""
+        return self.child.frame_count()
+
+    def paint(
+        self, draw: ImageDraw.ImageDraw, im: ImagePIL.Image, bounds: Bounds, frame: int
+    ) -> None:
+        """Paints the child inside the padding."""
+        left, top, right, bottom = self.pad
+        width, height = self.size(bounds)
+        if self.color:
+            draw.rectangle(
+                [bounds[0], bounds[1], bounds[0] + width - 1, bounds[1] + height - 1],
+                fill=self.color,
+            )
+        # Clamp the clip origin for negative padding.
+        x0 = bounds[0] + max(left, 0)
+        y0 = bounds[1] + max(top, 0)
+        clip = (x0, y0, x0 + width - left - right, y0 + height - top - bottom)
+        _paint_clipped(self.child, draw, im, clip, self._inner_bounds(bounds), frame)
+
+
 class Text(Renderable):
     """
     Text rendered on the canvas.
@@ -872,6 +937,27 @@ class Plot(Renderable):
             for i, (px, py) in enumerate(points):
                 c = self.color if self.data[i][1] >= 0 else self.color_inverted
                 draw.point((round(px), round(py)), fill=c)
+
+
+def _paint_clipped(
+    child: Renderable,
+    draw: ImageDraw.ImageDraw,
+    im: ImagePIL.Image,
+    clip: Bounds,
+    child_bounds: Bounds,
+    frame: int,
+) -> None:
+    """Paint `child` at `child_bounds`, discarding pixels outside `clip`."""
+    x0, y0 = max(clip[0], 0), max(clip[1], 0)
+    x1, y1 = min(clip[2], im.width), min(clip[3], im.height)
+    if x0 >= x1 or y0 >= y1:
+        return
+    region = im.crop((x0, y0, x1, y1))
+    region_draw = ImageDraw.Draw(region)
+    region_draw.fontmode = draw.fontmode
+    cx0, cy0, cx1, cy1 = child_bounds
+    child.paint(region_draw, region, (cx0 - x0, cy0 - y0, cx1 - x0, cy1 - y0), frame)
+    im.paste(region, (x0, y0))
 
 
 def render(widget: Renderable) -> list[ImagePIL.Image]:
