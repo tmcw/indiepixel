@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 # ruff: noqa: D103
-from indiepixel import Box, Circle, PieChart, Rect, Root, Text, render
+from indiepixel import Box, Circle, PieChart, Rect, Root, Row, Text, WrappedText, render
 
 
 def test_rect() -> None:
@@ -14,6 +14,27 @@ def test_rect() -> None:
 def test_text() -> None:
     t = Text(content="Hello world")
     assert t.size((0, 0, 100, 100)) == (51, 8)
+
+
+def test_wrapped_text_single_line() -> None:
+    wt = WrappedText(content="Hi")
+    assert wt.wrap_text((0, 0, 64, 32)) == "Hi"
+
+
+def test_wrapped_text_size() -> None:
+    wt = WrappedText(content="No trains scheduled")
+    # Widest line ("scheduled") is 42px; 2 lines of 8px
+    assert wt.size((0, 0, 64, 32)) == (42, 16)
+
+
+def test_wrapped_text_size_with_width_and_height() -> None:
+    wt = WrappedText(content="No trains scheduled", width=50, height=8)
+    assert wt.size((0, 0, 64, 32)) == (50, 8)
+
+
+def test_wrapped_text_empty() -> None:
+    # No width; one blank 8px line
+    assert WrappedText(content="").size((0, 0, 64, 32)) == (0, 8)
 
 
 def test_box() -> None:
@@ -50,6 +71,15 @@ def test_piechart_paints_its_size() -> None:
 def test_box_paints_its_size() -> None:
     b = Box(Rect(width=8, height=8, color="#000"), padding=2, background="#fff")
     assert painted_size(b) == (12, 12)
+
+
+def test_wrapped_text_aligns_within_its_width() -> None:
+    unsized = WrappedText(content="Hi", align="right")
+    sized = WrappedText(content="Hi", width=20, align="right")
+    im = render(Root(child=Row(children=[unsized, sized]), size=(64, 32)))[0]
+    # Unsized "Hi" (9px) isn't shifted, so text starts at x=0.
+    # Sized "Hi" is right-aligned in x=9..29, so text ends at x=28.
+    assert im.getbbox() == (0, 1, 28, 7)
 
 
 def test_root() -> None:
