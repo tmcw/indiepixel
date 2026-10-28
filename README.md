@@ -168,6 +168,7 @@ _* = currently not tidbyt-compatible_
 - Components
   - [x] Text
   - [x] Box*
+  - [x] Padding
   - [x] Rect*
   - [x] Column
   - [x] Row
